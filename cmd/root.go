@@ -7,8 +7,8 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "example.com",
-	Short: "A brief description of your application",
+	Use:   "Task",
+	Short: "Mange your tasks",
 	Long: `A longer description that spans multiple lines and likely contains
 examples and usage of using your application. For example:
 
