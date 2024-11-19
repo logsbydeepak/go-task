@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 
@@ -33,7 +34,27 @@ var listCmd = &cobra.Command{
 			csvWriter.Flush()
 		}
 
+		showAll, err := cmd.Flags().GetBool("all")
+		if err != nil {
+			fmt.Println("Failed to parse flag value")
+			return
+		}
+
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', tabwriter.StripEscape)
+
+		header, err := csvReader.Read()
+		if err != nil {
+			fmt.Println("Error reading csv data")
+			return
+		}
+
+		var text strings.Builder
+		for _, each := range header {
+			text.WriteString(each)
+			text.WriteString("\t")
+		}
+		fmt.Fprintln(w, text.String())
+
 		for {
 			header, err := csvReader.Read()
 			if err == io.EOF {
@@ -43,18 +64,35 @@ var listCmd = &cobra.Command{
 				return
 			}
 
-			var text strings.Builder
-			for _, each := range header {
-				text.WriteString(each)
-				text.WriteString("\t")
+			isCompleted := header[len(header)-1]
+			value, err := strconv.ParseBool(isCompleted)
+
+			if showAll {
+				var text strings.Builder
+				for _, each := range header {
+					text.WriteString(each)
+					text.WriteString("\t")
+				}
+				fmt.Fprintln(w, text.String())
+			} else {
+				var text strings.Builder
+				for _, each := range header {
+					if !value {
+						text.WriteString(each)
+						text.WriteString("\t")
+					}
+				}
+				if !value {
+					fmt.Fprintln(w, text.String())
+				}
 			}
-			fmt.Fprintln(w, text.String())
-			// fmt.Println(header)
 		}
+
 		w.Flush()
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(listCmd)
+	listCmd.Flags().BoolP("all", "a", false, "List all complete and incomplete task")
 }
