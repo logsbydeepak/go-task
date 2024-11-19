@@ -21,11 +21,11 @@ var addCmd = &cobra.Command{
 		id := 1
 
 		f, err := os.OpenFile(FILE_PATH, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
-
 		if err != nil {
 			fmt.Println("Failed to open task.csv file")
 			return
 		}
+
 		defer f.Close()
 
 		csvWriter := csv.NewWriter(f)
@@ -39,8 +39,8 @@ var addCmd = &cobra.Command{
 				return
 			}
 		} else {
-			csvReder := csv.NewReader(f)
-			header, err := csvReder.Read()
+			csvReader := csv.NewReader(f)
+			header, err := csvReader.Read()
 			if err != nil {
 				fmt.Println("Failed to read file")
 				return
@@ -48,7 +48,7 @@ var addCmd = &cobra.Command{
 			fmt.Println(header)
 
 			for {
-				line, err := csvReder.Read()
+				line, err := csvReader.Read()
 				if err == io.EOF {
 					break
 				} else if err != nil {
