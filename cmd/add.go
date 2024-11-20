@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"encoding/csv"
 	"fmt"
 	"io"
 	"os"
 	"strconv"
 
+	"example.com/file"
 	"github.com/spf13/cobra"
 )
 
@@ -20,15 +20,7 @@ var addCmd = &cobra.Command{
 		isNewFile := os.IsNotExist(err)
 		id := 1
 
-		f, err := os.OpenFile(FILE_PATH, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
-		if err != nil {
-			fmt.Println("Failed to open task.csv file")
-			return
-		}
-
-		defer f.Close()
-
-		csvWriter := csv.NewWriter(f)
+		csvWriter := file.NewWriter()
 
 		if isNewFile {
 			id = 1
@@ -39,7 +31,7 @@ var addCmd = &cobra.Command{
 				return
 			}
 		} else {
-			csvReader := csv.NewReader(f)
+			csvReader := file.NewReader()
 			header, err := csvReader.Read()
 			if err != nil {
 				fmt.Println("Failed to read file")

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/csv"
 	"fmt"
 	"io"
 	"os"
@@ -9,6 +8,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"example.com/file"
 	"github.com/spf13/cobra"
 )
 
@@ -19,17 +19,9 @@ var listCmd = &cobra.Command{
 		_, err := os.Stat(FILE_PATH)
 		isNewFile := os.IsNotExist(err)
 
-		f, err := os.OpenFile(FILE_PATH, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
-		if err != nil {
-			fmt.Println("Failed to open task.csv file")
-			return
-		}
-
-		defer f.Close()
-		csvReader := csv.NewReader(f)
-
+		csvReader := file.NewReader()
 		if isNewFile {
-			csvWriter := csv.NewWriter(f)
+			csvWriter := file.NewWriter()
 			err = csvWriter.Write([]string{"ID", "Description", "CreatedAt", "IsComplete"})
 			csvWriter.Flush()
 		}

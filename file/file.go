@@ -1,6 +1,7 @@
 package file
 
 import (
+	"encoding/csv"
 	"fmt"
 	"os"
 	"syscall"
@@ -26,4 +27,12 @@ func LoadFile(filepath string) (*os.File, error) {
 func CloseFile(f *os.File) error {
 	syscall.Flock(int(f.Fd()), syscall.LOCK_UN)
 	return f.Close()
+}
+
+func NewWriter() *csv.Writer {
+	return csv.NewWriter(f)
+}
+
+func NewReader() *csv.Reader {
+	return csv.NewReader(f)
 }
