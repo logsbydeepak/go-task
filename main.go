@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	f, err := file.LoadFile("./task.csv")
+	f, err := file.LoadFile()
 	if err != nil {
 		fmt.Println(err)
 		return

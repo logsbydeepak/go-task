@@ -11,9 +11,11 @@ import (
 
 var f *os.File
 
-func LoadFile(filepath string) (*os.File, error) {
+const filePath = "./task.csv"
+
+func LoadFile() (*os.File, error) {
 	var err error
-	f, err = os.OpenFile(filepath, os.O_RDWR|os.O_CREATE, os.ModePerm)
+	f, err = os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file for reading")
 	}
@@ -91,4 +93,13 @@ func ParseLine(line []string) (Task, error) {
 	}
 
 	return result, nil
+}
+
+func WriterHeader(writer *csv.Writer) error {
+	return writer.Write([]string{"ID", "Description", "CreatedAt", "IsComplete"})
+}
+
+func IsNewFile() bool {
+	_, err := os.Stat(filePath)
+	return os.IsNotExist(err)
 }

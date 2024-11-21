@@ -15,13 +15,17 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all the task",
 	Run: func(cmd *cobra.Command, args []string) {
-		_, err := os.Stat(FILE_PATH)
-		isNewFile := os.IsNotExist(err)
+		isNewFile := file.IsNewFile()
 
 		csvReader := file.NewReader()
 		if isNewFile {
 			csvWriter := file.NewWriter()
-			err = csvWriter.Write([]string{"ID", "Description", "CreatedAt", "IsComplete"})
+			err := file.WriterHeader(csvWriter)
+			if err != nil {
+				fmt.Println("Failed to write header to file")
+				return
+			}
+
 			csvWriter.Flush()
 		}
 

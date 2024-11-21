@@ -3,28 +3,24 @@ package cmd
 import (
 	"fmt"
 	"io"
-	"os"
 	"strconv"
 
 	"example.com/file"
 	"github.com/spf13/cobra"
 )
 
-const FILE_PATH = "./task.csv"
-
 var addCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Create new task",
 	Run: func(cmd *cobra.Command, args []string) {
-		_, err := os.Stat(FILE_PATH)
-		isNewFile := os.IsNotExist(err)
+		isNewFile := file.IsNewFile()
 		id := 1
 
 		csvWriter := file.NewWriter()
 
 		if isNewFile {
 			id = 1
-			err = csvWriter.Write([]string{"ID", "Description", "CreatedAt", "IsComplete"})
+			err := file.WriterHeader(csvWriter)
 
 			if err != nil {
 				fmt.Println("Failed to write to task.csv file")
@@ -61,7 +57,7 @@ var addCmd = &cobra.Command{
 				return
 			}
 
-			err = csvWriter.Write([]string{strconv.Itoa(id), arg, "time", "false"})
+			err := csvWriter.Write([]string{strconv.Itoa(id), arg, "time", "false"})
 			if err != nil {
 				fmt.Println("Failed to write to task.csv file")
 				return
