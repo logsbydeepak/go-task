@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
 	"strings"
 	"text/tabwriter"
 
@@ -56,8 +55,11 @@ var listCmd = &cobra.Command{
 				return
 			}
 
-			isCompleted := header[len(header)-1]
-			value, err := strconv.ParseBool(isCompleted)
+			data, err := file.ParseLine(header)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 
 			if showAll {
 				var text strings.Builder
@@ -69,12 +71,12 @@ var listCmd = &cobra.Command{
 			} else {
 				var text strings.Builder
 				for _, each := range header {
-					if !value {
+					if !data.IsComplete {
 						text.WriteString(each)
 						text.WriteString("\t")
 					}
 				}
-				if !value {
+				if !data.IsComplete {
 					fmt.Fprintln(w, text.String())
 				}
 			}
