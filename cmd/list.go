@@ -17,10 +17,9 @@ var listCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		isNewFile := file.IsNewFile()
 
-		csvReader := file.NewReader()
 		if isNewFile {
 			csvWriter := file.NewWriter()
-			err := file.WriterHeader(csvWriter)
+			err := file.WriteHeader(csvWriter)
 			if err != nil {
 				fmt.Println("Failed to write header to file")
 				return
@@ -37,6 +36,7 @@ var listCmd = &cobra.Command{
 
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', tabwriter.StripEscape)
 
+		csvReader := file.NewReader()
 		header, err := csvReader.Read()
 		if err != nil {
 			fmt.Println("Error reading csv data")

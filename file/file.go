@@ -95,8 +95,20 @@ func ParseLine(line []string) (Task, error) {
 	return result, nil
 }
 
-func WriterHeader(writer *csv.Writer) error {
+func WriteHeader(writer *csv.Writer) error {
 	return writer.Write([]string{"ID", "Description", "CreatedAt", "IsComplete"})
+}
+
+func WriteTask(writer *csv.Writer, task Task) error {
+	var isComplete string
+
+	if task.IsComplete {
+		isComplete = "true"
+	} else {
+		isComplete = "false"
+	}
+
+	return writer.Write([]string{string(task.ID), task.Description, task.CreatedAt, isComplete})
 }
 
 func IsNewFile() bool {

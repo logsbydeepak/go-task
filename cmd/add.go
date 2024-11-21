@@ -14,13 +14,13 @@ var addCmd = &cobra.Command{
 	Short: "Create new task",
 	Run: func(cmd *cobra.Command, args []string) {
 		isNewFile := file.IsNewFile()
-		id := 1
+		var id int64
+		id = 1
 
 		csvWriter := file.NewWriter()
-
 		if isNewFile {
 			id = 1
-			err := file.WriterHeader(csvWriter)
+			err := file.WriteHeader(csvWriter)
 
 			if err != nil {
 				fmt.Println("Failed to write to task.csv file")
@@ -43,11 +43,14 @@ var addCmd = &cobra.Command{
 					fmt.Println("Error reading csv data")
 					return
 				}
-				id, err = strconv.Atoi(line[0])
+
+				data, err := file.ParseLine(line)
 				if err != nil {
 					fmt.Println("Failed to parse ID")
 					return
 				}
+
+				id = data.ID
 			}
 			id++
 		}
@@ -57,7 +60,14 @@ var addCmd = &cobra.Command{
 				return
 			}
 
-			err := csvWriter.Write([]string{strconv.Itoa(id), arg, "time", "false"})
+			task := file.Task{
+				ID:          id,
+				Description: arg,
+				CreatedAt:   "time",
+				IsComplete:  false,
+			}
+
+			err := file.WriteTask(csvWriter, task)
 			if err != nil {
 				fmt.Println("Failed to write to task.csv file")
 				return
