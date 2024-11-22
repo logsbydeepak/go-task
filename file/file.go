@@ -13,8 +13,12 @@ var f *os.File
 
 const filePath = "./task.csv"
 
+var isNewFile bool
+
 func LoadFile() (*os.File, error) {
-	var err error
+	_, err := os.Stat(filePath)
+	isNewFile = os.IsNotExist(err)
+
 	f, err = os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file for reading")
@@ -108,10 +112,9 @@ func WriteTask(writer *csv.Writer, task Task) error {
 		isComplete = "false"
 	}
 
-	return writer.Write([]string{string(task.ID), task.Description, task.CreatedAt, isComplete})
+	return writer.Write([]string{fmt.Sprintf("%v", task.ID), task.Description, task.CreatedAt, isComplete})
 }
 
 func IsNewFile() bool {
-	_, err := os.Stat(filePath)
-	return os.IsNotExist(err)
+	return isNewFile
 }

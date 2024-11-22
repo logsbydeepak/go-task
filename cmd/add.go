@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"io"
-	"strconv"
 
 	"example.com/file"
 	"github.com/spf13/cobra"
@@ -28,12 +27,11 @@ var addCmd = &cobra.Command{
 			}
 		} else {
 			csvReader := file.NewReader()
-			header, err := csvReader.Read()
+			_, err := csvReader.Read()
 			if err != nil {
 				fmt.Println("Failed to read file")
 				return
 			}
-			fmt.Println(header)
 
 			for {
 				line, err := csvReader.Read()
