@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"io"
+	"os"
 
 	"example.com/file"
 	"github.com/spf13/cobra"
@@ -22,14 +23,14 @@ var addCmd = &cobra.Command{
 			err := file.WriteHeader(csvWriter)
 
 			if err != nil {
-				fmt.Println("Failed to write to task.csv file")
+				fmt.Fprintln(os.Stderr, "Failed to write to file")
 				return
 			}
 		} else {
 			csvReader := file.NewReader()
 			_, err := csvReader.Read()
 			if err != nil {
-				fmt.Println("Failed to read file")
+				fmt.Fprintln(os.Stderr, "Failed to read file")
 				return
 			}
 
@@ -38,13 +39,13 @@ var addCmd = &cobra.Command{
 				if err == io.EOF {
 					break
 				} else if err != nil {
-					fmt.Println("Error reading csv data")
+					fmt.Fprintln(os.Stderr, "Failed to read file")
 					return
 				}
 
 				data, err := file.ParseLine(line)
 				if err != nil {
-					fmt.Println("Failed to parse ID")
+					fmt.Fprintln(os.Stderr, "Failed to parse line")
 					return
 				}
 
@@ -67,14 +68,14 @@ var addCmd = &cobra.Command{
 
 			err := file.WriteTask(csvWriter, task)
 			if err != nil {
-				fmt.Println("Failed to write to task.csv file")
+				fmt.Fprintln(os.Stderr, "Failed to write line into file")
 				return
 			}
 		}
 
 		csvWriter.Flush()
 		if err := csvWriter.Error(); err != nil {
-			fmt.Println("Failed to flush csv writter")
+			fmt.Fprintln(os.Stderr, "Failed to write into file")
 			return
 		}
 	},
