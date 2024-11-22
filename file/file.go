@@ -11,17 +11,15 @@ import (
 
 var f *os.File
 
-const filePath = "./task.csv"
-
 var isNewFile bool
 
-func LoadFile() (*os.File, error) {
-	_, err := os.Stat(filePath)
+func LoadFile(filepath string) (*os.File, error) {
+	_, err := os.Stat(filepath)
 	isNewFile = os.IsNotExist(err)
 
-	f, err = os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, os.ModePerm)
+	f, err = os.OpenFile(filepath, os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open file for reading")
+		return nil, fmt.Errorf("Failed to open file")
 	}
 
 	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
@@ -81,7 +79,7 @@ func ParseLine(line []string) (Task, error) {
 	}
 
 	if len(raw.createdAt) == 0 {
-		return result, errors.New("Description can't be empty")
+		return result, errors.New("CreatedAt can't be empty")
 	}
 
 	isCompleted, err := strconv.ParseBool(raw.isComplete)
