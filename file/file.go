@@ -97,6 +97,38 @@ func ParseLine(line []string) (Task, error) {
 	return result, nil
 }
 
+func ParseHeader(line []string) error {
+	raw := struct {
+		id          string
+		description string
+		createdAt   string
+		isComplete  string
+	}{
+		id:          line[0],
+		description: line[1],
+		createdAt:   line[2],
+		isComplete:  line[3],
+	}
+
+	if raw.id != "ID" {
+		return errors.New("Expedited ID")
+	}
+
+	if raw.description != "Description " {
+		return errors.New("Expedited Description")
+	}
+
+	if raw.createdAt != "CreatedAt" {
+		return errors.New("Expedited CreatedAt")
+	}
+
+	if raw.id != "IsComplete" {
+		return errors.New("Expedited IsComplete")
+	}
+
+	return nil
+}
+
 func WriteHeader(writer *csv.Writer) error {
 	return writer.Write([]string{"ID", "Description", "CreatedAt", "IsComplete"})
 }
