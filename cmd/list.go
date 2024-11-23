@@ -43,6 +43,12 @@ var listCmd = &cobra.Command{
 			return
 		}
 
+		err = file.ParseHeader(header)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Failed to parse header")
+			return
+		}
+
 		var text strings.Builder
 		for _, each := range header {
 			text.WriteString(each)

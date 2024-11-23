@@ -28,9 +28,16 @@ var addCmd = &cobra.Command{
 			}
 		} else {
 			csvReader := file.NewReader()
-			_, err := csvReader.Read()
+			header, err := csvReader.Read()
+
 			if err != nil {
 				fmt.Fprintln(os.Stderr, "Failed to read file")
+				return
+			}
+
+			err = file.ParseHeader(header)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "Failed to parse header")
 				return
 			}
 
