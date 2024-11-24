@@ -114,7 +114,7 @@ func ParseHeader(line []string) error {
 		return errors.New("Expedited ID")
 	}
 
-	if raw.description != "Description " {
+	if raw.description != "Description" {
 		return errors.New("Expedited Description")
 	}
 
@@ -122,7 +122,7 @@ func ParseHeader(line []string) error {
 		return errors.New("Expedited CreatedAt")
 	}
 
-	if raw.id != "IsComplete" {
+	if raw.isComplete != "IsComplete" {
 		return errors.New("Expedited IsComplete")
 	}
 
