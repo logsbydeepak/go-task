@@ -41,6 +41,8 @@ var addCmd = &cobra.Command{
 				return
 			}
 
+			lineNumber := 1
+
 			for {
 				line, err := csvReader.Read()
 				if err == io.EOF {
@@ -57,8 +59,12 @@ var addCmd = &cobra.Command{
 				}
 
 				id = data.ID
+				lineNumber++
 			}
-			id++
+			if lineNumber != 1 {
+				id++
+			}
+
 		}
 
 		for _, arg := range args {
