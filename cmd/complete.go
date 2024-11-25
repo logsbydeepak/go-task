@@ -13,8 +13,12 @@ var completeCmd = &cobra.Command{
 	Use:   "complete",
 	Short: "Mark task as complete",
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) == 0 {
+			return
+		}
+
 		isNewFile := file.IsNewFile()
-		var data []string
+		var data [][]string
 
 		csvReader := file.NewReader()
 		header, err := csvReader.Read()
@@ -32,7 +36,7 @@ var completeCmd = &cobra.Command{
 				fmt.Fprintln(os.Stderr, "Failed to parse header")
 				return
 			}
-			data = append(data, header...)
+			data = append(data, header)
 		}
 
 		for {
@@ -50,8 +54,26 @@ var completeCmd = &cobra.Command{
 				return
 			}
 
-			data = append(data, header...)
+			if line[0] == args[0] {
+				line[3] = "true"
+			}
+
+			data = append(data, line)
 		}
+
+		err = file.Truncate()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Failed to truncate file")
+			return
+		}
+
+		csvWriter := file.NewWriter()
+		err = csvWriter.WriteAll(data)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Failed to write")
+			return
+		}
+		csvWriter.Flush()
 	},
 }
 

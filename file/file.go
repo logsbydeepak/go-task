@@ -148,3 +148,15 @@ func WriteTask(writer *csv.Writer, task Task) error {
 func IsNewFile() bool {
 	return isNewFile
 }
+
+func Truncate() error {
+	err := f.Truncate(0)
+	if err != nil {
+		return err
+	}
+	_, err = f.Seek(0, 0)
+	if err != nil {
+		return err
+	}
+	return nil
+}
