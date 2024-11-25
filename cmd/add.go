@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -27,44 +28,12 @@ var addCmd = &cobra.Command{
 				return
 			}
 		} else {
-			csvReader := file.NewReader()
-			header, err := csvReader.Read()
-
+			var err error
+			id, err = getID()
 			if err != nil {
-				fmt.Fprintln(os.Stderr, "Failed to read file")
+				fmt.Fprintln(os.Stderr, err)
 				return
 			}
-
-			err = file.ParseHeader(header)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, "Failed to parse header")
-				return
-			}
-
-			lineNumber := 1
-
-			for {
-				line, err := csvReader.Read()
-				if err == io.EOF {
-					break
-				} else if err != nil {
-					fmt.Fprintln(os.Stderr, "Failed to read file")
-					return
-				}
-
-				data, err := file.ParseLine(line)
-				if err != nil {
-					fmt.Fprintln(os.Stderr, "Failed to parse line")
-					return
-				}
-
-				id = data.ID
-				lineNumber++
-			}
-			if lineNumber != 1 {
-				id++
-			}
-
 		}
 
 		for _, arg := range args {
@@ -96,4 +65,42 @@ var addCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(addCmd)
+}
+
+func getID() (int64, error) {
+	var id int64 = 1
+	csvReader := file.NewReader()
+	header, err := csvReader.Read()
+
+	if err != nil {
+		return id, errors.New("Failed to read file")
+	}
+
+	err = file.ParseHeader(header)
+	if err != nil {
+		return id, errors.New("Failed to parse header")
+	}
+
+	lineNumber := 1
+	for {
+		line, err := csvReader.Read()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return id, errors.New("Failed to read file")
+		}
+
+		data, err := file.ParseLine(line)
+		if err != nil {
+			return id, errors.New("Failed to parse line")
+		}
+
+		id = data.ID
+		lineNumber++
+	}
+	if lineNumber != 1 {
+		id++
+	}
+
+	return id, nil
 }
