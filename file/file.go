@@ -13,6 +13,13 @@ var f *os.File
 
 var isNewFile bool
 
+const (
+	ID = iota
+	DESCRIPTION
+	CREATED_AT
+	IS_COMPLETE
+)
+
 func LoadFile(filepath string) (*os.File, error) {
 	_, err := os.Stat(filepath)
 	isNewFile = os.IsNotExist(err)
@@ -63,10 +70,10 @@ func ParseLine(line []string) (Task, error) {
 		createdAt   string
 		isComplete  string
 	}{
-		id:          line[0],
-		description: line[1],
-		createdAt:   line[2],
-		isComplete:  line[3],
+		id:          line[ID],
+		description: line[DESCRIPTION],
+		createdAt:   line[CREATED_AT],
+		isComplete:  line[IS_COMPLETE],
 	}
 
 	id, err := strconv.ParseInt(raw.id, 10, 64)
@@ -89,8 +96,8 @@ func ParseLine(line []string) (Task, error) {
 
 	result = Task{
 		ID:          id,
-		Description: line[1],
-		CreatedAt:   line[2],
+		Description: line[DESCRIPTION],
+		CreatedAt:   line[CREATED_AT],
 		IsComplete:  isCompleted,
 	}
 
@@ -104,10 +111,10 @@ func ParseHeader(line []string) error {
 		createdAt   string
 		isComplete  string
 	}{
-		id:          line[0],
-		description: line[1],
-		createdAt:   line[2],
-		isComplete:  line[3],
+		id:          line[ID],
+		description: line[DESCRIPTION],
+		createdAt:   line[CREATED_AT],
+		isComplete:  line[IS_COMPLETE],
 	}
 
 	if raw.id != "ID" {
