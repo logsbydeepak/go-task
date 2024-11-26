@@ -64,32 +64,20 @@ func ParseLine(line []string) (Task, error) {
 		return result, errors.New("Length should be of size 4")
 	}
 
-	raw := struct {
-		id          string
-		description string
-		createdAt   string
-		isComplete  string
-	}{
-		id:          line[ID],
-		description: line[DESCRIPTION],
-		createdAt:   line[CREATED_AT],
-		isComplete:  line[IS_COMPLETE],
-	}
-
-	id, err := strconv.ParseInt(raw.id, 10, 64)
+	id, err := strconv.ParseInt(line[ID], 10, 64)
 	if err != nil {
 		return result, err
 	}
 
-	if len(raw.description) == 0 {
+	if len(line[DESCRIPTION]) == 0 {
 		return result, errors.New("Description can't be empty")
 	}
 
-	if len(raw.createdAt) == 0 {
+	if len(line[CREATED_AT]) == 0 {
 		return result, errors.New("CreatedAt can't be empty")
 	}
 
-	isCompleted, err := strconv.ParseBool(raw.isComplete)
+	isCompleted, err := strconv.ParseBool(line[IS_COMPLETE])
 	if err != nil {
 		return result, err
 	}

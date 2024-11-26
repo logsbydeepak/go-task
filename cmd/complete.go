@@ -54,8 +54,10 @@ var completeCmd = &cobra.Command{
 				return
 			}
 
-			if line[0] == args[0] {
-				line[3] = "true"
+			for _, arg := range args {
+				if line[file.ID] == arg {
+					line[file.IS_COMPLETE] = "true"
+				}
 			}
 
 			data = append(data, line)
