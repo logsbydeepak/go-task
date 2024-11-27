@@ -14,6 +14,15 @@ var addCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Create new task",
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) == 0 {
+			return
+		}
+
+		description := args[0]
+		if len(description) == 0 {
+			return
+		}
+
 		isNewFile := file.IsNewFile()
 		var id int64
 		id = 1
@@ -36,23 +45,17 @@ var addCmd = &cobra.Command{
 			}
 		}
 
-		for _, arg := range args {
-			if len(arg) == 0 {
-				return
-			}
+		task := file.Task{
+			ID:          id,
+			Description: description,
+			CreatedAt:   "time",
+			IsComplete:  false,
+		}
 
-			task := file.Task{
-				ID:          id,
-				Description: arg,
-				CreatedAt:   "time",
-				IsComplete:  false,
-			}
-
-			err := file.WriteTask(csvWriter, task)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, "Failed to write line into file")
-				return
-			}
+		err := file.WriteTask(csvWriter, task)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Failed to write line into file")
+			return
 		}
 
 		csvWriter.Flush()
