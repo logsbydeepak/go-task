@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"syscall"
+	"time"
 )
 
 var f *os.File
@@ -53,7 +54,7 @@ func NewReader() *csv.Reader {
 type Task struct {
 	ID          int64
 	Description string
-	CreatedAt   string
+	CreatedAt   time.Time
 	IsComplete  bool
 }
 
@@ -77,6 +78,11 @@ func ParseLine(line []string) (Task, error) {
 		return result, errors.New("CreatedAt can't be empty")
 	}
 
+	createdAt, err := time.Parse(time.RFC3339, line[CREATED_AT])
+	if err != nil {
+		return result, errors.New("Failed to parse CreatedAt")
+	}
+
 	isCompleted, err := strconv.ParseBool(line[IS_COMPLETE])
 	if err != nil {
 		return result, err
@@ -85,7 +91,7 @@ func ParseLine(line []string) (Task, error) {
 	result = Task{
 		ID:          id,
 		Description: line[DESCRIPTION],
-		CreatedAt:   line[CREATED_AT],
+		CreatedAt:   createdAt,
 		IsComplete:  isCompleted,
 	}
 
@@ -137,7 +143,7 @@ func WriteTask(writer *csv.Writer, task Task) error {
 		isComplete = "false"
 	}
 
-	return writer.Write([]string{fmt.Sprintf("%v", task.ID), task.Description, task.CreatedAt, isComplete})
+	return writer.Write([]string{fmt.Sprintf("%v", task.ID), task.Description, task.CreatedAt.Format(time.RFC3339), isComplete})
 }
 
 func IsNewFile() bool {

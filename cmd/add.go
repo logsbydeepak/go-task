@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	"example.com/file"
 	"github.com/spf13/cobra"
@@ -48,7 +49,7 @@ var addCmd = &cobra.Command{
 		task := file.Task{
 			ID:          id,
 			Description: description,
-			CreatedAt:   "time",
+			CreatedAt:   time.Now(),
 			IsComplete:  false,
 		}
 
