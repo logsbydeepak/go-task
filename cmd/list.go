@@ -57,8 +57,9 @@ var listCmd = &cobra.Command{
 		}
 		fmt.Fprintln(w, text.String())
 
+	lineLoop:
 		for {
-			header, err := csvReader.Read()
+			line, err := csvReader.Read()
 			if err == io.EOF {
 				break
 			} else if err != nil {
@@ -66,43 +67,30 @@ var listCmd = &cobra.Command{
 				return
 			}
 
-			data, err := file.ParseLine(header)
+			data, err := file.ParseLine(line)
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
 
 			time := timediff.TimeDiff(data.CreatedAt)
-			if showAll {
-				var text strings.Builder
-				for i, each := range header {
-					if i == file.CREATED_AT {
-						text.WriteString(time)
-					} else {
-						text.WriteString(each)
-					}
 
-					text.WriteString("\t")
+			var text strings.Builder
+			for i, each := range line {
+				if showAll == false && data.IsComplete == true {
+					continue lineLoop
 				}
-				fmt.Fprintln(w, text.String())
-			} else {
-				var text strings.Builder
-				for i, each := range header {
-					if !data.IsComplete {
-						if i == file.CREATED_AT {
-							text.WriteString(time)
-						} else {
-							text.WriteString(each)
-						}
-						text.WriteString("\t")
-					}
+
+				if i == file.CREATED_AT {
+					text.WriteString(time)
+				} else {
+					text.WriteString(each)
 				}
-				if !data.IsComplete {
-					fmt.Fprintln(w, text.String())
-				}
+
+				text.WriteString("\t")
 			}
+			fmt.Fprintln(w, text.String())
 		}
-
 		w.Flush()
 	},
 }
