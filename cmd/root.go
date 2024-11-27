@@ -7,7 +7,7 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "Task",
+	Use:   "task",
 	Short: "Mange your tasks",
 }
 
