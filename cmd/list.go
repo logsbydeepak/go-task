@@ -8,6 +8,7 @@ import (
 	"text/tabwriter"
 
 	"example.com/file"
+	"github.com/mergestat/timediff"
 	"github.com/spf13/cobra"
 )
 
@@ -71,18 +72,28 @@ var listCmd = &cobra.Command{
 				return
 			}
 
+			time := timediff.TimeDiff(data.CreatedAt)
 			if showAll {
 				var text strings.Builder
-				for _, each := range header {
-					text.WriteString(each)
+				for i, each := range header {
+					if i == file.CREATED_AT {
+						text.WriteString(time)
+					} else {
+						text.WriteString(each)
+					}
+
 					text.WriteString("\t")
 				}
 				fmt.Fprintln(w, text.String())
 			} else {
 				var text strings.Builder
-				for _, each := range header {
+				for i, each := range header {
 					if !data.IsComplete {
-						text.WriteString(each)
+						if i == file.CREATED_AT {
+							text.WriteString(time)
+						} else {
+							text.WriteString(each)
+						}
 						text.WriteString("\t")
 					}
 				}
