@@ -5,10 +5,18 @@ import (
 	"os"
 
 	"example.com/cmd"
+	"example.com/db"
 	"example.com/file"
 )
 
 func main() {
+	err := db.Connect()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer db.Close()
+
 	f, err := file.LoadFile("./task.csv")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
