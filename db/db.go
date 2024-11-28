@@ -28,3 +28,21 @@ func Connect() error {
 func Close() error {
 	return db.Close()
 }
+
+func Init() error {
+	query := `
+  CREATE TABLE IF NOT EXISTS tasks(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    description TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    is_complete BOOLEAN NOT NULL
+  )
+  `
+
+	_, err := db.Exec(query)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

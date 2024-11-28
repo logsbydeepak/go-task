@@ -17,6 +17,13 @@ func main() {
 	}
 	defer db.Close()
 
+	err = db.Init()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	f, err := file.LoadFile("./task.csv")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
