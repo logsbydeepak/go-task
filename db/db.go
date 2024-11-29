@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -35,11 +36,22 @@ func Init() error {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     description TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    is_complete BOOLEAN NOT NULL
+    is_complete BOOLEAN DEFAULT FALSE
   )
   `
 
 	_, err := db.Exec(query)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Create(description string) error {
+	query := fmt.Sprintf("INSERT INTO tasks(description) VALUES ('%s')", description)
+	_, err := db.Exec(query)
+
 	if err != nil {
 		return err
 	}
