@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"example.com/file"
 	_ "github.com/tursodatabase/go-libsql"
 )
 
@@ -57,4 +58,25 @@ func Create(description string) error {
 	}
 
 	return nil
+}
+
+func ListAll() ([]file.Task, error) {
+	query := "SELECT * FROM tasks"
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var tasks []file.Task
+	for rows.Next() {
+		var task file.Task
+		if err := rows.Scan(&task.ID, &task.Description, &task.CreatedAt, &task.IsComplete); err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, task)
+	}
+	return tasks, nil
 }
