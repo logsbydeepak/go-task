@@ -8,6 +8,7 @@ import (
 
 	"example.com/db"
 	"example.com/file"
+	"github.com/mergestat/timediff"
 	"github.com/spf13/cobra"
 )
 
@@ -41,9 +42,10 @@ var listCmd = &cobra.Command{
 			var text strings.Builder
 			text.WriteString(fmt.Sprintf("%v", task.ID))
 			text.WriteString("\t")
-			text.WriteString(fmt.Sprintf("%s", task.Description))
+			text.WriteString(task.Description)
 			text.WriteString("\t")
-			text.WriteString(fmt.Sprintf("%s", task.CreatedAt))
+			time := timediff.TimeDiff(task.CreatedAt)
+			text.WriteString(time)
 			text.WriteString("\t")
 			text.WriteString(fmt.Sprintf("%v", task.IsComplete))
 			text.WriteString("\t")
