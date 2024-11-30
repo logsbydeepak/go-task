@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"example.com/db"
+	"example.com/file"
 	"github.com/spf13/cobra"
 )
 
@@ -11,7 +12,20 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all the task",
 	Run: func(cmd *cobra.Command, args []string) {
-		tasks, err := db.ListAllTask()
+		var err error
+		showAll, err := cmd.Flags().GetBool("all")
+		if err != nil {
+			fmt.Println("Failed to parse flag value")
+			return
+		}
+
+		var tasks []file.Task
+		if showAll {
+			tasks, err = db.GetAllTask()
+		} else {
+			tasks, err = db.GetAllPendingTask()
+		}
+
 		if err != nil {
 			fmt.Println("Failed get tasks")
 			return

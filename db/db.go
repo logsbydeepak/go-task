@@ -60,7 +60,7 @@ func Create(description string) error {
 	return nil
 }
 
-func ListAllTask() ([]file.Task, error) {
+func GetAllTask() ([]file.Task, error) {
 	query := "SELECT * FROM tasks"
 
 	rows, err := db.Query(query)
@@ -84,9 +84,8 @@ func ListAllTask() ([]file.Task, error) {
 func GetAllPendingTask() ([]file.Task, error) {
 	query := `
   SELECT * FROM tasks
-  WHERE is_complte = FALSE;
+  WHERE is_complete = FALSE;
   `
-
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
