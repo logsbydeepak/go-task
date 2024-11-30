@@ -2,6 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"strings"
+	"text/tabwriter"
 
 	"example.com/db"
 	"example.com/file"
@@ -31,9 +34,22 @@ var listCmd = &cobra.Command{
 			return
 		}
 
+		w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', tabwriter.StripEscape)
+		fmt.Fprintln(w, "ID\tDescription\tCreatedAt\tIsComplete\t")
+
 		for _, task := range tasks {
-			fmt.Println(task)
+			var text strings.Builder
+			text.WriteString(fmt.Sprintf("%v", task.ID))
+			text.WriteString("\t")
+			text.WriteString(fmt.Sprintf("%s", task.Description))
+			text.WriteString("\t")
+			text.WriteString(fmt.Sprintf("%s", task.CreatedAt))
+			text.WriteString("\t")
+			text.WriteString(fmt.Sprintf("%v", task.IsComplete))
+			text.WriteString("\t")
+			fmt.Fprintln(w, text.String())
 		}
+		w.Flush()
 	},
 }
 
