@@ -11,7 +11,7 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all the task",
 	Run: func(cmd *cobra.Command, args []string) {
-		tasks, err := db.ListAll()
+		tasks, err := db.ListAllTask()
 		if err != nil {
 			fmt.Println("Failed get tasks")
 			return

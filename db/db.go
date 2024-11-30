@@ -60,7 +60,7 @@ func Create(description string) error {
 	return nil
 }
 
-func ListAll() ([]file.Task, error) {
+func ListAllTask() ([]file.Task, error) {
 	query := "SELECT * FROM tasks"
 
 	rows, err := db.Query(query)
@@ -79,4 +79,29 @@ func ListAll() ([]file.Task, error) {
 		tasks = append(tasks, task)
 	}
 	return tasks, nil
+}
+
+func GetAllPendingTask() ([]file.Task, error) {
+	query := `
+  SELECT * FROM tasks
+  WHERE is_complte = FALSE;
+  `
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var tasks []file.Task
+	for rows.Next() {
+		var task file.Task
+		if err := rows.Scan(&task.ID, &task.Description, &task.CreatedAt, &task.IsComplete); err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, task)
+	}
+	return tasks, nil
+
 }
