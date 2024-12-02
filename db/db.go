@@ -104,3 +104,18 @@ func GetAllPendingTask() ([]file.Task, error) {
 	return tasks, nil
 
 }
+
+func MarkTaskCompleted(id int) error {
+	query := `
+  UPDATE tasks
+  SET is_complete = TRUE
+  WHERE id = ?;`
+
+	_, err := db.Exec(query, id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

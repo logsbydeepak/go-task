@@ -2,10 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"io"
-	"os"
+	"strconv"
 
-	"example.com/file"
+	"example.com/db"
 	"github.com/spf13/cobra"
 )
 
@@ -17,65 +16,19 @@ var completeCmd = &cobra.Command{
 			return
 		}
 
-		isNewFile := file.IsNewFile()
-		var data [][]string
-
-		csvReader := file.NewReader()
-		header, err := csvReader.Read()
+		id, err := strconv.Atoi(args[0])
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "Failed to read file")
+			fmt.Println("Failed to update task")
+			fmt.Println(err)
 			return
 		}
-		if isNewFile {
-			fmt.Fprintln(os.Stderr, "Not found")
-			return
-		} else {
 
-			err = file.ParseHeader(header)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, "Failed to parse header")
-				return
-			}
-			data = append(data, header)
-		}
-
-		for {
-			line, err := csvReader.Read()
-			if err == io.EOF {
-				break
-			} else if err != nil {
-				fmt.Fprintln(os.Stderr, "Failed to read file")
-				return
-			}
-
-			_, err = file.ParseLine(line)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, "Failed to parse line")
-				return
-			}
-
-			for _, arg := range args {
-				if line[file.ID] == arg {
-					line[file.IS_COMPLETE] = "true"
-				}
-			}
-
-			data = append(data, line)
-		}
-
-		err = file.Truncate()
+		err = db.MarkTaskCompleted(id)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "Failed to truncate file")
+			fmt.Println("Failed to update task")
+			fmt.Println(err)
 			return
 		}
-
-		csvWriter := file.NewWriter()
-		err = csvWriter.WriteAll(data)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Failed to write")
-			return
-		}
-		csvWriter.Flush()
 	},
 }
 
