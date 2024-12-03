@@ -7,7 +7,7 @@ import (
 	"text/tabwriter"
 
 	"example.com/db"
-	"example.com/file"
+	"example.com/task"
 	"github.com/mergestat/timediff"
 	"github.com/spf13/cobra"
 )
@@ -23,7 +23,7 @@ var listCmd = &cobra.Command{
 			return
 		}
 
-		var tasks []file.Task
+		var tasks []task.Task
 		if showAll {
 			tasks, err = db.GetAllTask()
 		} else {
