@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"example.com/file"
+	"example.com/task"
 	_ "github.com/tursodatabase/go-libsql"
 )
 
@@ -60,7 +60,7 @@ func Create(description string) error {
 	return nil
 }
 
-func GetAllTask() ([]file.Task, error) {
+func GetAllTask() ([]task.Task, error) {
 	query := "SELECT * FROM tasks"
 
 	rows, err := db.Query(query)
@@ -70,9 +70,9 @@ func GetAllTask() ([]file.Task, error) {
 
 	defer rows.Close()
 
-	var tasks []file.Task
+	var tasks []task.Task
 	for rows.Next() {
-		var task file.Task
+		var task task.Task
 		if err := rows.Scan(&task.ID, &task.Description, &task.CreatedAt, &task.IsComplete); err != nil {
 			return nil, err
 		}
@@ -81,7 +81,7 @@ func GetAllTask() ([]file.Task, error) {
 	return tasks, nil
 }
 
-func GetAllPendingTask() ([]file.Task, error) {
+func GetAllPendingTask() ([]task.Task, error) {
 	query := `
   SELECT * FROM tasks
   WHERE is_complete = FALSE;
@@ -93,9 +93,9 @@ func GetAllPendingTask() ([]file.Task, error) {
 
 	defer rows.Close()
 
-	var tasks []file.Task
+	var tasks []task.Task
 	for rows.Next() {
-		var task file.Task
+		var task task.Task
 		if err := rows.Scan(&task.ID, &task.Description, &task.CreatedAt, &task.IsComplete); err != nil {
 			return nil, err
 		}
