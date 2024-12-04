@@ -2,7 +2,8 @@
 
 CLI application for managing task
 
-```bash
+```
+$ task
 Mange your tasks
 
 Usage:
