@@ -1,11 +1,10 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
 	"strconv"
 
 	"example.com/db"
+	"example.com/output"
 	"github.com/spf13/cobra"
 )
 
@@ -19,13 +18,13 @@ var completeCmd = &cobra.Command{
 
 		id, err := strconv.Atoi(args[0])
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "Failed to update task")
+			output.Error("Failed to update task")
 			return
 		}
 
 		err = db.MarkTaskCompleted(id)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "Failed to update task")
+			output.Error("Failed to update task")
 			return
 		}
 	},

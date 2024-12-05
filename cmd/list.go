@@ -7,6 +7,7 @@ import (
 	"text/tabwriter"
 
 	"example.com/db"
+	"example.com/output"
 	"example.com/task"
 	"github.com/mergestat/timediff"
 	"github.com/spf13/cobra"
@@ -20,7 +21,7 @@ var listCmd = &cobra.Command{
 		var err error
 		showAll, err := cmd.Flags().GetBool("all")
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "Failed to parse flag value")
+			output.Error("Failed to parse flag value")
 			return
 		}
 
@@ -32,7 +33,7 @@ var listCmd = &cobra.Command{
 		}
 
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "Failed get tasks")
+			output.Error("Failed get tasks")
 			return
 		}
 
@@ -54,7 +55,7 @@ var listCmd = &cobra.Command{
 		}
 		err = w.Flush()
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "Failed to print")
+			output.Error("Failed to print")
 			return
 		}
 	},

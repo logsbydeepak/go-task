@@ -1,10 +1,8 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
 	"example.com/db"
+	"example.com/output"
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +21,7 @@ var addCmd = &cobra.Command{
 
 		err := db.Create(description)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "Failed to create task")
+			output.Error("Failed to create task")
 			return
 		}
 	},
