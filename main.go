@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"example.com/cmd"
 	"example.com/db"
@@ -10,14 +11,14 @@ import (
 func main() {
 	err := db.Connect()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, "Failed to connect to DB")
 		return
 	}
 	defer db.Close()
 
 	err = db.Init()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, "Failed to initialize DB")
 		return
 	}
 

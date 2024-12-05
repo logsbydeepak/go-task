@@ -16,10 +16,11 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all the task",
 	Run: func(cmd *cobra.Command, args []string) {
+
 		var err error
 		showAll, err := cmd.Flags().GetBool("all")
 		if err != nil {
-			fmt.Println("Failed to parse flag value")
+			fmt.Fprintln(os.Stderr, "Failed to parse flag value")
 			return
 		}
 
@@ -31,7 +32,7 @@ var listCmd = &cobra.Command{
 		}
 
 		if err != nil {
-			fmt.Println("Failed get tasks")
+			fmt.Fprintln(os.Stderr, "Failed get tasks")
 			return
 		}
 
@@ -51,7 +52,11 @@ var listCmd = &cobra.Command{
 			text.WriteString("\t")
 			fmt.Fprintln(w, text.String())
 		}
-		w.Flush()
+		err = w.Flush()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Failed to print")
+			return
+		}
 	},
 }
 
