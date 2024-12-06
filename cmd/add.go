@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"example.com/db"
-	"example.com/output"
+	"example.com/pkg/db"
+	"example.com/pkg/output"
 	"github.com/spf13/cobra"
 )
 

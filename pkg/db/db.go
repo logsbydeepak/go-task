@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"example.com/task"
+	"example.com/pkg/task"
 	_ "github.com/tursodatabase/go-libsql"
 )
 

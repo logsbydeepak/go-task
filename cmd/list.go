@@ -6,9 +6,9 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"example.com/db"
-	"example.com/output"
-	"example.com/task"
+	"example.com/pkg/db"
+	"example.com/pkg/output"
+	"example.com/pkg/task"
 	"github.com/mergestat/timediff"
 	"github.com/spf13/cobra"
 )

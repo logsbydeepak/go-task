@@ -2,8 +2,8 @@ package main
 
 import (
 	"example.com/cmd"
-	"example.com/db"
-	"example.com/output"
+	"example.com/pkg/db"
+	"example.com/pkg/output"
 )
 
 func main() {
