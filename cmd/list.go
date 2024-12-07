@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"strings"
 	"text/tabwriter"
 
 	"example.com/pkg/db"
@@ -41,17 +40,9 @@ var listCmd = &cobra.Command{
 		fmt.Fprintln(w, "ID\tDescription\tCreatedAt\tIsComplete\t")
 
 		for _, task := range tasks {
-			var text strings.Builder
-			text.WriteString(fmt.Sprintf("%v", task.ID))
-			text.WriteString("\t")
-			text.WriteString(task.Description)
-			text.WriteString("\t")
 			time := timediff.TimeDiff(task.CreatedAt)
-			text.WriteString(time)
-			text.WriteString("\t")
-			text.WriteString(fmt.Sprintf("%v", task.IsComplete))
-			text.WriteString("\t")
-			fmt.Fprintln(w, text.String())
+			text := fmt.Sprintf("%v\t%s\t%s\t%v\t", task.ID, task.Description, time, task.IsComplete)
+			fmt.Fprintln(w, text)
 		}
 		err = w.Flush()
 		if err != nil {
