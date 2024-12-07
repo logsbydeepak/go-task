@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -38,7 +37,7 @@ func Init() error {
     description TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     is_complete BOOLEAN DEFAULT FALSE
-  )
+  );
   `
 
 	_, err := db.Exec(query)
@@ -50,9 +49,11 @@ func Init() error {
 }
 
 func Create(description string) error {
-	query := fmt.Sprintf("INSERT INTO tasks(description) VALUES ('%s')", description)
-	_, err := db.Exec(query)
+	query := `
+  INSERT INTO tasks(description) VALUES (?);
+  `
 
+	_, err := db.Exec(query, description)
 	if err != nil {
 		return err
 	}
@@ -61,7 +62,9 @@ func Create(description string) error {
 }
 
 func GetAllTask() ([]task.Task, error) {
-	query := "SELECT * FROM tasks"
+	query := `
+  SELECT * FROM tasks;
+  `
 
 	rows, err := db.Query(query)
 	if err != nil {
@@ -109,7 +112,8 @@ func MarkTaskCompleted(id int) error {
 	query := `
   UPDATE tasks
   SET is_complete = TRUE
-  WHERE id = ?;`
+  WHERE id = ?;
+  `
 
 	_, err := db.Exec(query, id)
 

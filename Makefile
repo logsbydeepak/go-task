@@ -7,3 +7,7 @@ tidy:
 build:
 	go build -o build/task main.go
 
+.PHONY: clean
+clean:
+	rm -rf build
+
