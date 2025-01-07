@@ -5,7 +5,6 @@ import (
 	"os"
 
 	bt "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 func Handler() {
@@ -16,9 +15,17 @@ func Handler() {
 	}
 }
 
+type screen int
+
+const (
+	splashScreen = iota
+	taskScreen
+)
+
 type model struct {
 	viewportWidth  int
 	viewportHeight int
+	screen
 }
 
 func (m model) Init() bt.Cmd {
@@ -36,9 +43,24 @@ func (m model) Update(msg bt.Msg) (bt.Model, bt.Cmd) {
 		m.viewportHeight = msg.Height
 		m.viewportWidth = msg.Width
 	}
+
+	switch m.screen {
+	case splashScreen:
+		return m.SplashScrrenUpdate(msg)
+	case taskScreen:
+		return m, nil
+	}
+
 	return m, nil
 }
 
 func (m model) View() string {
-	return lipgloss.Place(m.viewportWidth, m.viewportHeight, lipgloss.Center, lipgloss.Center, "Splash")
+	switch m.screen {
+	case splashScreen:
+		return m.SplashScreenView()
+	case taskScreen:
+		return "task"
+	}
+
+	return "ERROR"
 }
