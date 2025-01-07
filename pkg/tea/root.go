@@ -26,6 +26,7 @@ type model struct {
 	viewportWidth  int
 	viewportHeight int
 	screen
+	splashScreenState
 }
 
 func (m model) Init() bt.Cmd {
