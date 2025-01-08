@@ -60,7 +60,7 @@ func (m model) View() string {
 	case splashScreen:
 		return m.SplashScreenView()
 	case taskScreen:
-		return "task"
+		return m.TaskScreenView()
 	}
 
 	return "ERROR"
