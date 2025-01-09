@@ -29,25 +29,33 @@ func (m model) TaskScreenView() string {
 		}
 	}
 
-	sqr := lipgloss.NewStyle().
-		Width(60).
-		Height(20).
+	width := 60
+	height := 20
+
+	innersqr := lipgloss.NewStyle().
+		Width(width - 2).
+		Height(height - 2).
 		Border(lipgloss.RoundedBorder()).
 		Render(m.taskScreenState.content)
 
-	return lipgloss.Place(m.viewportWidth, m.viewportHeight, lipgloss.Center, lipgloss.Center, tabs.String()+"\n"+sqr)
+	outersqr := lipgloss.NewStyle().Width(width).
+		Height(height).
+		Border(lipgloss.HiddenBorder()).
+		Render(tabs.String() + "\n" + innersqr)
+
+	return lipgloss.Place(m.viewportWidth, m.viewportHeight, lipgloss.Center, lipgloss.Center, outersqr)
 }
 
 func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 	switch msg := msg.(type) {
 	case bt.KeyMsg:
 		switch msg.String() {
-		case "left":
+		case bt.KeyLeft.String():
 			if m.active > 0 {
 				m.taskScreenState.active--
 				m.updateContent()
 			}
-		case "right":
+		case bt.KeyRight.String():
 			if m.active < len(m.tabs)-1 {
 				m.taskScreenState.active++
 				m.updateContent()
