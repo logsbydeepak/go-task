@@ -8,7 +8,16 @@ import (
 )
 
 func Handler() {
-	p := bt.NewProgram(model{}, bt.WithAltScreen())
+	taskScreenState := taskScreenState{
+		tabs: []string{"pending", "all"},
+	}
+
+	m := model{
+		taskScreenState: taskScreenState,
+	}
+
+	m.updateContent()
+	p := bt.NewProgram(m, bt.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
@@ -27,6 +36,7 @@ type model struct {
 	viewportHeight int
 	screen
 	splashScreenState
+	taskScreenState
 }
 
 func (m model) Init() bt.Cmd {
@@ -49,7 +59,7 @@ func (m model) Update(msg bt.Msg) (bt.Model, bt.Cmd) {
 	case splashScreen:
 		return m.SplashScrrenUpdate(msg)
 	case taskScreen:
-		return m, nil
+		return m.TaskScrrenUpdate(msg)
 	}
 
 	return m, nil
