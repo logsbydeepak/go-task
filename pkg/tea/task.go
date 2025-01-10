@@ -62,6 +62,14 @@ func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 				m.taskScreenState.active++
 				m.updateContent()
 			}
+		case bt.KeyTab.String():
+			if m.active < len(m.tabs)-1 {
+				m.taskScreenState.active++
+				m.updateContent()
+			} else {
+				m.taskScreenState.active--
+				m.updateContent()
+			}
 		}
 	}
 
