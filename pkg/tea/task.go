@@ -3,6 +3,8 @@ package tea
 import (
 	"strings"
 
+	"example.com/pkg/db"
+	"example.com/pkg/task"
 	bt "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -69,8 +71,28 @@ func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 func (m *model) updateContent() {
 	switch m.active {
 	case 0:
-		m.content = "pending"
+		task, err := db.GetAllPendingTask()
+		if err != nil {
+			m.content = "ERROR"
+		} else {
+			m.content = showTask(task)
+		}
 	case 1:
-		m.content = "all"
+		task, err := db.GetAllTask()
+		if err != nil {
+			m.content = "ERROR"
+		} else {
+			m.content = showTask(task)
+		}
 	}
+}
+
+func showTask(t []task.Task) string {
+	var result strings.Builder
+
+	for _, task := range t {
+		result.WriteString(task.Description + "\n")
+	}
+
+	return result.String()
 }
