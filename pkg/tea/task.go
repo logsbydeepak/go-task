@@ -15,17 +15,13 @@ type taskScreenState struct {
 	active  int
 }
 
-var (
-	tabStyle       = lipgloss.NewStyle().Padding(0, 1)
-	activeTabStyle = lipgloss.NewStyle().Bold(true).Padding(0, 1)
-)
-
 func (m model) TaskScreenView() string {
-	var tabs strings.Builder
+	tabStyle := lipgloss.NewStyle().Padding(0, 1)
 
+	var tabs strings.Builder
 	for i, tab := range m.tabs {
 		if i == m.active {
-			tabs.WriteString(activeTabStyle.Render(tab + "_"))
+			tabs.WriteString(tabStyle.Bold(true).Render(tab + "_"))
 		} else {
 			tabs.WriteString(tabStyle.Render(tab + " "))
 		}
@@ -35,9 +31,10 @@ func (m model) TaskScreenView() string {
 	height := 20
 
 	innersqr := lipgloss.NewStyle().
-		Width(width - 2).
-		Height(height - 2).
+		Width(width-2).
+		Height(height-2).
 		Border(lipgloss.RoundedBorder()).
+		Padding(0, 1).
 		Render(m.taskScreenState.content)
 
 	outersqr := lipgloss.NewStyle().Width(width).
@@ -45,7 +42,13 @@ func (m model) TaskScreenView() string {
 		Border(lipgloss.HiddenBorder()).
 		Render(tabs.String() + "\n" + innersqr)
 
-	return lipgloss.Place(m.viewportWidth, m.viewportHeight, lipgloss.Center, lipgloss.Center, outersqr)
+	return lipgloss.Place(
+		m.viewportWidth,
+		m.viewportHeight,
+		lipgloss.Center,
+		lipgloss.Center,
+		outersqr,
+	)
 }
 
 func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {

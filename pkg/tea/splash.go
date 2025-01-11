@@ -12,18 +12,20 @@ type splashScreenState struct {
 	cursorOn bool
 }
 
-var (
-	baseText   = lipgloss.NewStyle().Bold(true).Render("task ")
-	cursorText = lipgloss.NewStyle().Bold(true).Render("task_")
-)
-
 func (m model) SplashScreenView() string {
+	text := "task"
+
 	if m.splashScreenState.cursorOn == true {
-		return lipgloss.Place(m.viewportWidth, m.viewportHeight, lipgloss.Center, lipgloss.Center, cursorText)
-	} else {
-		return lipgloss.Place(m.viewportWidth, m.viewportHeight, lipgloss.Center, lipgloss.Center, baseText)
+		text = text + "_"
 	}
 
+	return lipgloss.Place(
+		m.viewportWidth,
+		m.viewportHeight,
+		lipgloss.Center,
+		lipgloss.Center,
+		lipgloss.NewStyle().Bold(true).Render(text),
+	)
 }
 
 type SplashScrrenTimeOver struct{}
