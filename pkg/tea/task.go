@@ -53,6 +53,7 @@ func (m model) TaskScreenView() string {
 
 func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 	switch msg := msg.(type) {
+
 	case bt.KeyMsg:
 		switch msg.String() {
 		case bt.KeyLeft.String():
@@ -71,6 +72,14 @@ func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 				m.updateContent()
 			} else {
 				m.taskScreenState.active--
+				m.updateContent()
+			}
+		case bt.KeyShiftTab.String():
+			if m.active > 0 {
+				m.taskScreenState.active--
+				m.updateContent()
+			} else {
+				m.taskScreenState.active++
 				m.updateContent()
 			}
 		}

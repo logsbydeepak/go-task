@@ -47,7 +47,7 @@ func (m model) Update(msg bt.Msg) (bt.Model, bt.Cmd) {
 	switch msg := msg.(type) {
 	case bt.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "q":
+		case bt.KeyCtrlC.String(), "q":
 			return m, bt.Quit
 		}
 	case bt.WindowSizeMsg:
