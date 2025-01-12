@@ -28,21 +28,21 @@ func (m model) SplashScreenView() string {
 	)
 }
 
-type SplashScrrenTimeOver struct{}
-type SplashScrrenCursorToggle struct{}
+type SplashScrrenTimeOverMsg struct{}
+type SplashScrrenCursorToggleMsg struct{}
 
 func (m model) SplashScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 	screenTimeoutCmd := bt.Tick(time.Second*4, func(t time.Time) bt.Msg {
-		return SplashScrrenTimeOver{}
+		return SplashScrrenTimeOverMsg{}
 	})
 	toggleCursorCmd := bt.Tick(time.Millisecond*500, func(t time.Time) bt.Msg {
-		return SplashScrrenCursorToggle{}
+		return SplashScrrenCursorToggleMsg{}
 	})
 
 	switch msg.(type) {
-	case SplashScrrenTimeOver:
+	case SplashScrrenTimeOverMsg:
 		return m.TaskScreenSwitch()
-	case SplashScrrenCursorToggle:
+	case SplashScrrenCursorToggleMsg:
 		m.splashScreenState.cursorOn = !m.splashScreenState.cursorOn
 		return m, toggleCursorCmd
 	}
