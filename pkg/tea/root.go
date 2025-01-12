@@ -8,14 +8,7 @@ import (
 )
 
 func Handler() {
-	taskScreenState := taskScreenState{
-		tabs: []string{"pending", "all"},
-	}
-
-	m := model{
-		taskScreenState: taskScreenState,
-	}
-
+	m := model{}
 	m.updateContent()
 	p := bt.NewProgram(m, bt.WithAltScreen())
 	if _, err := p.Run(); err != nil {
@@ -34,6 +27,7 @@ const (
 type model struct {
 	viewportWidth  int
 	viewportHeight int
+
 	screen
 	splashScreenState
 	taskScreenState

@@ -41,8 +41,7 @@ func (m model) SplashScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 
 	switch msg.(type) {
 	case SplashScrrenTimeOver:
-		m.screen = taskScreen
-		return m, nil
+		return m.TaskScreenSwitch()
 	case SplashScrrenCursorToggle:
 		m.splashScreenState.cursorOn = !m.splashScreenState.cursorOn
 		return m, toggleCursorCmd

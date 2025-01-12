@@ -15,6 +15,14 @@ type taskScreenState struct {
 	active  int
 }
 
+func (m model) TaskScreenSwitch() (bt.Model, bt.Cmd) {
+	m.screen = taskScreen
+	m.taskScreenState = taskScreenState{
+		tabs: []string{"pending", "all"},
+	}
+	return m, nil
+}
+
 func (m model) TaskScreenView() string {
 	tabStyle := lipgloss.NewStyle().Padding(0, 1)
 
