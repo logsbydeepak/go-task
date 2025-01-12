@@ -63,18 +63,18 @@ func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 	switch msg := msg.(type) {
 
 	case bt.KeyMsg:
-		switch msg.String() {
-		case bt.KeyLeft.String():
+		switch msg.Type {
+		case bt.KeyLeft:
 			if m.active > 0 {
 				m.taskScreenState.active--
 				m.updateContent()
 			}
-		case bt.KeyRight.String():
+		case bt.KeyRight:
 			if m.active < len(m.tabs)-1 {
 				m.taskScreenState.active++
 				m.updateContent()
 			}
-		case bt.KeyTab.String():
+		case bt.KeyTab:
 			if m.active < len(m.tabs)-1 {
 				m.taskScreenState.active++
 				m.updateContent()
@@ -82,7 +82,7 @@ func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 				m.taskScreenState.active--
 				m.updateContent()
 			}
-		case bt.KeyShiftTab.String():
+		case bt.KeyShiftTab:
 			if m.active > 0 {
 				m.taskScreenState.active--
 				m.updateContent()

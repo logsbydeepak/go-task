@@ -39,10 +39,15 @@ func (m model) Init() bt.Cmd {
 
 func (m model) Update(msg bt.Msg) (bt.Model, bt.Cmd) {
 	switch msg := msg.(type) {
+
 	case bt.KeyMsg:
-		switch msg.String() {
-		case bt.KeyCtrlC.String(), "q":
+		switch msg.Type {
+		case bt.KeyCtrlC:
 			return m, bt.Quit
+		case bt.KeyRunes:
+			if msg.String() == "q" {
+				return m, bt.Quit
+			}
 		}
 	case bt.WindowSizeMsg:
 		m.viewportHeight = msg.Height
