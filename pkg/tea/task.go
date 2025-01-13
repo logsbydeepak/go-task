@@ -20,6 +20,7 @@ func (m model) TaskScreenSwitch() (bt.Model, bt.Cmd) {
 	m.taskScreenState = taskScreenState{
 		tabs: []string{"pending", "all"},
 	}
+	m.updateContent()
 	return m, nil
 }
 

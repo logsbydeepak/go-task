@@ -9,7 +9,6 @@ import (
 
 func Handler() {
 	m := model{}
-	m.updateContent()
 	p := bt.NewProgram(m, bt.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		fmt.Println("Error running program:", err)

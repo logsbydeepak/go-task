@@ -17,6 +17,8 @@ func (m model) SplashScreenView() string {
 
 	if m.splashScreenState.cursorOn == true {
 		text = text + "_"
+	} else {
+		text = text + " "
 	}
 
 	return lipgloss.Place(
