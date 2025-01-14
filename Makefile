@@ -11,3 +11,6 @@ build:
 clean:
 	rm -rf build
 
+.PHONY: log
+log:
+	tail -f app.log

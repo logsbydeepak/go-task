@@ -5,6 +5,7 @@ import (
 	"os"
 
 	bt "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/log"
 )
 
 func Handler() {
@@ -49,6 +50,7 @@ func (m model) Update(msg bt.Msg) (bt.Model, bt.Cmd) {
 			}
 		}
 	case bt.WindowSizeMsg:
+		log.Infof("Height: %v Width: %v", msg.Height, msg.Width)
 		m.viewportHeight = msg.Height
 		m.viewportWidth = msg.Width
 	}

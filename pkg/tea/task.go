@@ -39,6 +39,14 @@ func (m model) TaskScreenView() string {
 	width := 60
 	height := 20
 
+	if m.viewportWidth <= 60 {
+		width = m.viewportWidth - 2
+	}
+
+	if m.viewportHeight <= 20 {
+		height = m.viewportHeight - 2
+	}
+
 	innersqr := lipgloss.NewStyle().
 		Width(width-2).
 		Height(height-2).
