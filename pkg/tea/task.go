@@ -1,6 +1,7 @@
 package tea
 
 import (
+	"strconv"
 	"strings"
 
 	"example.com/pkg/db"
@@ -10,9 +11,9 @@ import (
 )
 
 type taskScreenState struct {
-	tabs    []string
-	content string
-	active  int
+	tabs   []string
+	tasks  []task.Task
+	active int
 }
 
 func (m model) TaskScreenSwitch() (bt.Model, bt.Cmd) {
@@ -36,26 +37,40 @@ func (m model) TaskScreenView() string {
 		}
 	}
 
-	width := 60
-	height := 20
+	outerWidth := 60
+	outerHeight := 20
 
-	if m.viewportWidth <= 60 {
-		width = m.viewportWidth - 2
+	if m.viewportWidth <= outerWidth {
+		outerWidth = m.viewportWidth - 2
 	}
 
-	if m.viewportHeight <= 20 {
-		height = m.viewportHeight - 2
+	if m.viewportHeight <= outerHeight {
+		outerHeight = m.viewportHeight - 2
+	}
+
+	innerWidth := outerWidth - 2
+	innerHeight := outerHeight - 2
+
+	tasks := m.taskScreenState.tasks
+
+	if len(tasks) > innerHeight {
+		tasks = tasks[:innerHeight-1]
+	}
+
+	var content strings.Builder
+	for i, each := range tasks {
+		content.WriteString(strconv.Itoa(i+1) + " " + each.Description + "\n")
 	}
 
 	innersqr := lipgloss.NewStyle().
-		Width(width-2).
-		Height(height-2).
+		Width(innerWidth).
+		Height(innerHeight).
 		Border(lipgloss.RoundedBorder()).
 		Padding(0, 1).
-		Render(m.taskScreenState.content)
+		Render(content.String())
 
-	outersqr := lipgloss.NewStyle().Width(width).
-		Height(height).
+	outersqr := lipgloss.NewStyle().Width(outerWidth).
+		Height(outerHeight).
 		Border(lipgloss.HiddenBorder()).
 		Render(tabs.String() + "\n" + innersqr)
 
@@ -109,27 +124,13 @@ func (m *model) updateContent() {
 	switch m.active {
 	case 0:
 		task, err := db.GetAllPendingTask()
-		if err != nil {
-			m.content = "ERROR"
-		} else {
-			m.content = showTask(task)
+		if err == nil {
+			m.tasks = task
 		}
 	case 1:
 		task, err := db.GetAllTask()
-		if err != nil {
-			m.content = "ERROR"
-		} else {
-			m.content = showTask(task)
+		if err == nil {
+			m.tasks = task
 		}
 	}
-}
-
-func showTask(t []task.Task) string {
-	var result strings.Builder
-
-	for _, task := range t {
-		result.WriteString(task.Description + "\n")
-	}
-
-	return result.String()
 }
