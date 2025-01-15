@@ -56,9 +56,17 @@ func (m model) TaskScreenView() string {
 		tasks = tasks[:innerHeight]
 	}
 
+	zeroCount := len(strconv.Itoa(int(tasks[len(tasks)-1].ID)))
 	content := make([]string, len(tasks))
+
 	for i, each := range tasks {
-		content[i] = strconv.Itoa(i+1) + " " + each.Description
+		id := strconv.Itoa(int(each.ID))
+		idLen := len(id)
+		if zeroCount > idLen {
+			id = strings.Repeat(" ", zeroCount-idLen) + id
+		}
+
+		content[i] = id + " " + each.Description
 	}
 
 	innersqr := lipgloss.NewStyle().
