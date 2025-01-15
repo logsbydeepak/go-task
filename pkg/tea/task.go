@@ -49,17 +49,16 @@ func (m model) TaskScreenView() string {
 	}
 
 	innerWidth := outerWidth - 2
-	innerHeight := outerHeight - 2
-
+	innerHeight := outerHeight - 3
 	tasks := m.taskScreenState.tasks
 
 	if len(tasks) > innerHeight {
-		tasks = tasks[:innerHeight-1]
+		tasks = tasks[:innerHeight]
 	}
 
-	var content strings.Builder
+	content := make([]string, len(tasks))
 	for i, each := range tasks {
-		content.WriteString(strconv.Itoa(i+1) + " " + each.Description + "\n")
+		content[i] = strconv.Itoa(i+1) + " " + each.Description
 	}
 
 	innersqr := lipgloss.NewStyle().
@@ -67,7 +66,7 @@ func (m model) TaskScreenView() string {
 		Height(innerHeight).
 		Border(lipgloss.RoundedBorder()).
 		Padding(0, 1).
-		Render(content.String())
+		Render(strings.Join(content, "\n"))
 
 	outersqr := lipgloss.NewStyle().Width(outerWidth).
 		Height(outerHeight).
