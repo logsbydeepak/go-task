@@ -25,6 +25,10 @@ func (m model) TaskScreenSwitch() (bt.Model, bt.Cmd) {
 	return m, nil
 }
 
+const (
+	GrayColor = lipgloss.Color("8")
+)
+
 func (m model) TaskScreenView() string {
 	tabStyle := lipgloss.NewStyle().Padding(0, 1)
 
@@ -65,8 +69,7 @@ func (m model) TaskScreenView() string {
 		if zeroCount > idLen {
 			id = strings.Repeat(" ", zeroCount-idLen) + id
 		}
-
-		content[i] = id + " " + each.Description
+		content[i] = lipgloss.NewStyle().Foreground(GrayColor).Render(id) + " " + each.Description
 	}
 
 	innersqr := lipgloss.NewStyle().
