@@ -39,7 +39,6 @@ func (m model) Init() bt.Cmd {
 
 func (m model) Update(msg bt.Msg) (bt.Model, bt.Cmd) {
 	switch msg := msg.(type) {
-
 	case bt.KeyMsg:
 		switch msg.Type {
 		case bt.KeyCtrlC:

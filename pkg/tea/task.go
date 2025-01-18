@@ -15,20 +15,19 @@ type taskScreenState struct {
 	tabs      []string
 	tasks     []task.Task
 	active    int
-	textInput textinput.Model
+	taskInput textinput.Model
 }
 
 func (m model) TaskScreenSwitch() (bt.Model, bt.Cmd) {
 	ti := textinput.New()
-	ti.Placeholder = "work?"
-	ti.Focus()
+	ti.Placeholder = "new task"
 	ti.CharLimit = 156
 	ti.Width = 20
 
 	m.screen = taskScreen
 	m.taskScreenState = taskScreenState{
 		tabs:      []string{"pending", "all"},
-		textInput: ti,
+		taskInput: ti,
 	}
 	m.updateContent()
 
@@ -71,7 +70,7 @@ func (m model) TaskScreenView() string {
 		tasks = tasks[:innerHeight]
 	}
 
-	input := m.textInput.View()
+	input := m.taskInput.View()
 	zeroCount := len(strconv.Itoa(int(tasks[len(tasks)-1].ID)))
 	content := make([]string, len(tasks))
 
@@ -107,7 +106,6 @@ func (m model) TaskScreenView() string {
 
 func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 	switch msg := msg.(type) {
-
 	case bt.KeyMsg:
 		switch msg.Type {
 		case bt.KeyLeft:
@@ -136,11 +134,19 @@ func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 				m.taskScreenState.active++
 				m.updateContent()
 			}
+		case bt.KeyEscape:
+			m.taskScreenState.taskInput.Reset()
+			m.taskScreenState.taskInput.Blur()
+			return m, nil
+		case bt.KeyRunes:
+			if msg.String() == "a" {
+				return m, m.taskScreenState.taskInput.Focus()
+			}
 		}
 	}
 
 	var cmd bt.Cmd
-	m.taskScreenState.textInput, cmd = m.taskScreenState.textInput.Update(msg)
+	m.taskScreenState.taskInput, cmd = m.taskScreenState.taskInput.Update(msg)
 
 	return m, cmd
 }
