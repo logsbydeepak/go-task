@@ -28,6 +28,7 @@ type model struct {
 	viewportWidth  int
 	viewportHeight int
 
+	ignoreQKey bool
 	screen
 	splashScreenState
 	taskScreenState
@@ -44,7 +45,7 @@ func (m model) Update(msg bt.Msg) (bt.Model, bt.Cmd) {
 		case bt.KeyCtrlC:
 			return m, bt.Quit
 		case bt.KeyRunes:
-			if msg.String() == "q" {
+			if m.ignoreQKey == false && msg.String() == "q" {
 				return m, bt.Quit
 			}
 		}

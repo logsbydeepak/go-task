@@ -135,11 +135,13 @@ func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 				m.updateContent()
 			}
 		case bt.KeyEscape:
+			m.ignoreQKey = false
 			m.taskScreenState.taskInput.Reset()
 			m.taskScreenState.taskInput.Blur()
 			return m, nil
 		case bt.KeyRunes:
 			if msg.String() == "a" {
+				m.ignoreQKey = true
 				return m, m.taskScreenState.taskInput.Focus()
 			}
 		}
