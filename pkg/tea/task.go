@@ -6,22 +6,32 @@ import (
 
 	"example.com/pkg/db"
 	"example.com/pkg/task"
+	"github.com/charmbracelet/bubbles/textinput"
 	bt "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
 type taskScreenState struct {
-	tabs   []string
-	tasks  []task.Task
-	active int
+	tabs      []string
+	tasks     []task.Task
+	active    int
+	textInput textinput.Model
 }
 
 func (m model) TaskScreenSwitch() (bt.Model, bt.Cmd) {
+	ti := textinput.New()
+	ti.Placeholder = "work?"
+	ti.Focus()
+	ti.CharLimit = 156
+	ti.Width = 20
+
 	m.screen = taskScreen
 	m.taskScreenState = taskScreenState{
-		tabs: []string{"pending", "all"},
+		tabs:      []string{"pending", "all"},
+		textInput: ti,
 	}
 	m.updateContent()
+
 	return m, nil
 }
 
@@ -30,6 +40,7 @@ const (
 )
 
 func (m model) TaskScreenView() string {
+
 	tabStyle := lipgloss.NewStyle().Padding(0, 1)
 
 	var tabs strings.Builder
@@ -56,10 +67,11 @@ func (m model) TaskScreenView() string {
 	innerHeight := outerHeight - 3
 	tasks := m.taskScreenState.tasks
 
-	if len(tasks) > innerHeight {
+	if len(tasks) > innerHeight-1 {
 		tasks = tasks[:innerHeight]
 	}
 
+	input := m.textInput.View()
 	zeroCount := len(strconv.Itoa(int(tasks[len(tasks)-1].ID)))
 	content := make([]string, len(tasks))
 
@@ -77,7 +89,7 @@ func (m model) TaskScreenView() string {
 		Height(innerHeight).
 		Border(lipgloss.RoundedBorder()).
 		Padding(0, 1).
-		Render(strings.Join(content, "\n"))
+		Render(input + "\n" + strings.Join(content, "\n"))
 
 	outersqr := lipgloss.NewStyle().Width(outerWidth).
 		Height(outerHeight).
@@ -127,7 +139,10 @@ func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 		}
 	}
 
-	return m, nil
+	var cmd bt.Cmd
+	m.taskScreenState.textInput, cmd = m.taskScreenState.textInput.Update(msg)
+
+	return m, cmd
 }
 
 func (m *model) updateContent() {
