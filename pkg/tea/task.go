@@ -71,7 +71,7 @@ func (m model) TaskScreenView() string {
 	}
 
 	input := m.taskInput.View()
-	zeroCount := len(strconv.Itoa(int(tasks[len(tasks)-1].ID)))
+	zeroCount := len(strconv.Itoa(int(tasks[0].ID)))
 	content := make([]string, len(tasks))
 
 	for i, each := range tasks {
