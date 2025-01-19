@@ -63,7 +63,8 @@ func Create(description string) error {
 
 func GetAllTask() ([]task.Task, error) {
 	query := `
-  SELECT * FROM tasks;
+  SELECT * FROM tasks
+  ORDER BY id DESC;
   `
 
 	rows, err := db.Query(query)
@@ -87,7 +88,8 @@ func GetAllTask() ([]task.Task, error) {
 func GetAllPendingTask() ([]task.Task, error) {
 	query := `
   SELECT * FROM tasks
-  WHERE is_complete = FALSE;
+  WHERE is_complete = FALSE
+  ORDER BY id DESC;
   `
 	rows, err := db.Query(query)
 	if err != nil {
