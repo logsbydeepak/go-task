@@ -70,8 +70,6 @@ func (m model) TaskScreenView() string {
 		tasks = tasks[:innerHeight]
 	}
 
-	m.taskScreenState.taskInput.Width = 20
-	input := m.taskScreenState.taskInput.View()
 	zeroCount := len(strconv.Itoa(int(tasks[0].ID)))
 	content := make([]string, len(tasks))
 
@@ -89,7 +87,7 @@ func (m model) TaskScreenView() string {
 		Height(innerHeight).
 		Border(lipgloss.RoundedBorder()).
 		Padding(0, 1).
-		Render(input + "\n" + strings.Join(content, "\n"))
+		Render(m.taskScreenState.taskInput.View() + "\n" + strings.Join(content, "\n"))
 
 	outersqr := lipgloss.NewStyle().Width(outerWidth).
 		Height(outerHeight).
@@ -109,16 +107,6 @@ func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 	switch msg := msg.(type) {
 	case bt.KeyMsg:
 		switch msg.Type {
-		case bt.KeyLeft:
-			if m.active > 0 {
-				m.taskScreenState.active--
-				m.updateContent()
-			}
-		case bt.KeyRight:
-			if m.active < len(m.tabs)-1 {
-				m.taskScreenState.active++
-				m.updateContent()
-			}
 		case bt.KeyTab:
 			if m.active < len(m.tabs)-1 {
 				m.taskScreenState.active++
@@ -150,8 +138,19 @@ func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 
 	var cmd bt.Cmd
 	m.taskScreenState.taskInput, cmd = m.taskScreenState.taskInput.Update(msg)
+	m.updateTaskInputWidth()
 
 	return m, cmd
+}
+
+func (m *model) updateTaskInputWidth() {
+	outerWidth := 60
+	if m.viewportWidth <= outerWidth {
+		outerWidth = m.viewportWidth - 2
+	}
+	innerWidth := outerWidth - 2 - 5
+
+	m.taskScreenState.taskInput.Width = innerWidth
 }
 
 func (m *model) updateContent() {
