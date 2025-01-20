@@ -22,7 +22,7 @@ func (m model) TaskScreenSwitch() (bt.Model, bt.Cmd) {
 	ti := textinput.New()
 	ti.Placeholder = "new task"
 	ti.CharLimit = 156
-	ti.Width = 20
+	ti.PlaceholderStyle = lipgloss.NewStyle().Italic(true).Foreground(GrayColor)
 
 	m.screen = taskScreen
 	m.taskScreenState = taskScreenState{
@@ -70,7 +70,8 @@ func (m model) TaskScreenView() string {
 		tasks = tasks[:innerHeight]
 	}
 
-	input := m.taskInput.View()
+	m.taskScreenState.taskInput.Width = 20
+	input := m.taskScreenState.taskInput.View()
 	zeroCount := len(strconv.Itoa(int(tasks[0].ID)))
 	content := make([]string, len(tasks))
 
