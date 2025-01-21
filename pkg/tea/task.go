@@ -16,7 +16,15 @@ type taskScreenState struct {
 	tasks     []task.Task
 	active    int
 	taskInput textinput.Model
+
+	outerWidth  int
+	outerHeight int
 }
+
+const (
+	MAX_WIDTH  = 60
+	MAX_HEIGHT = 20
+)
 
 func (m model) TaskScreenSwitch() (bt.Model, bt.Cmd) {
 	ti := textinput.New()
@@ -26,8 +34,10 @@ func (m model) TaskScreenSwitch() (bt.Model, bt.Cmd) {
 
 	m.screen = taskScreen
 	m.taskScreenState = taskScreenState{
-		tabs:      []string{"pending", "all"},
-		taskInput: ti,
+		tabs:        []string{"pending", "all"},
+		taskInput:   ti,
+		outerWidth:  MAX_WIDTH,
+		outerHeight: MAX_HEIGHT,
 	}
 	m.updateContent()
 
@@ -51,19 +61,8 @@ func (m model) TaskScreenView() string {
 		}
 	}
 
-	outerWidth := 60
-	outerHeight := 20
-
-	if m.viewportWidth <= outerWidth {
-		outerWidth = m.viewportWidth - 2
-	}
-
-	if m.viewportHeight <= outerHeight {
-		outerHeight = m.viewportHeight - 2
-	}
-
-	innerWidth := outerWidth - 2
-	innerHeight := outerHeight - 3
+	innerWidth := m.taskScreenState.outerWidth - 2
+	innerHeight := m.taskScreenState.outerHeight - 3
 	tasks := m.taskScreenState.tasks
 
 	if len(tasks) > innerHeight-1 {
@@ -89,8 +88,8 @@ func (m model) TaskScreenView() string {
 		Padding(0, 1).
 		Render(m.taskScreenState.taskInput.View() + "\n" + strings.Join(content, "\n"))
 
-	outersqr := lipgloss.NewStyle().Width(outerWidth).
-		Height(outerHeight).
+	outersqr := lipgloss.NewStyle().Width(m.taskScreenState.outerWidth).
+		Height(m.taskScreenState.outerHeight).
 		Border(lipgloss.HiddenBorder()).
 		Render(tabs.String() + "\n" + innersqr)
 
@@ -104,6 +103,20 @@ func (m model) TaskScreenView() string {
 }
 
 func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
+	if m.viewportWidth <= MAX_WIDTH {
+		m.taskScreenState.outerWidth = m.viewportWidth - 2
+	} else {
+		m.taskScreenState.outerWidth = MAX_WIDTH
+	}
+
+	if m.viewportHeight <= MAX_HEIGHT {
+		m.taskScreenState.outerHeight = m.viewportHeight - 2
+	} else {
+		m.taskScreenState.outerHeight = MAX_HEIGHT
+	}
+
+	m.taskScreenState.taskInput.Width = m.taskScreenState.outerWidth - 2 - 5
+
 	switch msg := msg.(type) {
 	case bt.KeyMsg:
 		switch msg.Type {
@@ -138,19 +151,7 @@ func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 
 	var cmd bt.Cmd
 	m.taskScreenState.taskInput, cmd = m.taskScreenState.taskInput.Update(msg)
-	m.updateTaskInputWidth()
-
 	return m, cmd
-}
-
-func (m *model) updateTaskInputWidth() {
-	outerWidth := 60
-	if m.viewportWidth <= outerWidth {
-		outerWidth = m.viewportWidth - 2
-	}
-	innerWidth := outerWidth - 2 - 5
-
-	m.taskScreenState.taskInput.Width = innerWidth
 }
 
 func (m *model) updateContent() {
