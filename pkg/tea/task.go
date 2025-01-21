@@ -22,8 +22,13 @@ type taskScreenState struct {
 }
 
 const (
-	MAX_WIDTH  = 60
-	MAX_HEIGHT = 20
+	maxWidthSize        = 60
+	maxHeightSize       = 20
+	borderLeftRightSize = 2
+	taskInputPromptSize = 5
+	taskInputHeightSize = 1
+
+	GrayColor = lipgloss.Color("8")
 )
 
 func (m model) TaskScreenSwitch() (bt.Model, bt.Cmd) {
@@ -34,22 +39,18 @@ func (m model) TaskScreenSwitch() (bt.Model, bt.Cmd) {
 
 	m.screen = taskScreen
 	m.taskScreenState = taskScreenState{
-		tabs:        []string{"pending", "all"},
-		taskInput:   ti,
-		outerWidth:  MAX_WIDTH,
-		outerHeight: MAX_HEIGHT,
+		tabs:      []string{"pending", "all"},
+		taskInput: ti,
+
+		outerWidth:  maxWidthSize,
+		outerHeight: maxHeightSize,
 	}
 	m.updateContent()
 
 	return m, nil
 }
 
-const (
-	GrayColor = lipgloss.Color("8")
-)
-
 func (m model) TaskScreenView() string {
-
 	tabStyle := lipgloss.NewStyle().Padding(0, 1)
 
 	var tabs strings.Builder
@@ -61,11 +62,11 @@ func (m model) TaskScreenView() string {
 		}
 	}
 
-	innerWidth := m.taskScreenState.outerWidth - 2
-	innerHeight := m.taskScreenState.outerHeight - 3
+	innerWidth := m.taskScreenState.outerWidth - borderLeftRightSize
+	innerHeight := m.taskScreenState.outerHeight - borderLeftRightSize - taskInputHeightSize
 	tasks := m.taskScreenState.tasks
 
-	if len(tasks) > innerHeight-1 {
+	if len(tasks) > innerHeight-taskInputHeightSize {
 		tasks = tasks[:innerHeight]
 	}
 
@@ -103,19 +104,19 @@ func (m model) TaskScreenView() string {
 }
 
 func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
-	if m.viewportWidth <= MAX_WIDTH {
-		m.taskScreenState.outerWidth = m.viewportWidth - 2
+	if m.viewportWidth <= maxWidthSize {
+		m.taskScreenState.outerWidth = m.viewportWidth - borderLeftRightSize
 	} else {
-		m.taskScreenState.outerWidth = MAX_WIDTH
+		m.taskScreenState.outerWidth = maxWidthSize
 	}
 
-	if m.viewportHeight <= MAX_HEIGHT {
-		m.taskScreenState.outerHeight = m.viewportHeight - 2
+	if m.viewportHeight <= maxHeightSize {
+		m.taskScreenState.outerHeight = m.viewportHeight - borderLeftRightSize
 	} else {
-		m.taskScreenState.outerHeight = MAX_HEIGHT
+		m.taskScreenState.outerHeight = maxHeightSize
 	}
 
-	m.taskScreenState.taskInput.Width = m.taskScreenState.outerWidth - 2 - 5
+	m.taskScreenState.taskInput.Width = m.taskScreenState.outerWidth - borderLeftRightSize - taskInputPromptSize
 
 	switch msg := msg.(type) {
 	case bt.KeyMsg:
