@@ -1,10 +1,9 @@
-package tea
+package tui
 
 import (
 	"time"
 
-	bt "github.com/charmbracelet/bubbletea"
-	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -33,11 +32,11 @@ func (m model) SplashScreenView() string {
 type SplashScrrenTimeOverMsg struct{}
 type SplashScrrenCursorToggleMsg struct{}
 
-func (m model) SplashScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
-	screenTimeoutCmd := bt.Tick(time.Second*4, func(t time.Time) bt.Msg {
+func (m model) SplashScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
+	screenTimeoutCmd := tea.Tick(time.Second*4, func(t time.Time) tea.Msg {
 		return SplashScrrenTimeOverMsg{}
 	})
-	toggleCursorCmd := bt.Tick(time.Millisecond*500, func(t time.Time) bt.Msg {
+	toggleCursorCmd := tea.Tick(time.Millisecond*500, func(t time.Time) tea.Msg {
 		return SplashScrrenCursorToggleMsg{}
 	})
 

@@ -1,16 +1,16 @@
-package tea
+package tui
 
 import (
 	"fmt"
 	"os"
 
-	bt "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/log"
 )
 
 func Handler() {
 	m := model{}
-	p := bt.NewProgram(m, bt.WithAltScreen())
+	p := tea.NewProgram(m, tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
@@ -34,22 +34,22 @@ type model struct {
 	taskScreenState
 }
 
-func (m model) Init() bt.Cmd {
+func (m model) Init() tea.Cmd {
 	return nil
 }
 
-func (m model) Update(msg bt.Msg) (bt.Model, bt.Cmd) {
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case bt.KeyMsg:
+	case tea.KeyMsg:
 		switch msg.Type {
-		case bt.KeyCtrlC:
-			return m, bt.Quit
-		case bt.KeyRunes:
+		case tea.KeyCtrlC:
+			return m, tea.Quit
+		case tea.KeyRunes:
 			if m.ignoreQKey == false && msg.String() == "q" {
-				return m, bt.Quit
+				return m, tea.Quit
 			}
 		}
-	case bt.WindowSizeMsg:
+	case tea.WindowSizeMsg:
 		log.Infof("Height: %v Width: %v", msg.Height, msg.Width)
 		m.viewportHeight = msg.Height
 		m.viewportWidth = msg.Width

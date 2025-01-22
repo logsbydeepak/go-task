@@ -1,4 +1,4 @@
-package tea
+package tui
 
 import (
 	"strconv"
@@ -7,7 +7,7 @@ import (
 	"example.com/pkg/db"
 	"example.com/pkg/task"
 	"github.com/charmbracelet/bubbles/textinput"
-	bt "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -31,7 +31,7 @@ const (
 	GrayColor = lipgloss.Color("8")
 )
 
-func (m model) TaskScreenSwitch() (bt.Model, bt.Cmd) {
+func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
 	ti := textinput.New()
 	ti.Placeholder = "new task"
 	ti.CharLimit = 156
@@ -103,7 +103,7 @@ func (m model) TaskScreenView() string {
 	)
 }
 
-func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
+func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if m.viewportWidth <= maxWidthSize {
 		m.taskScreenState.outerWidth = m.viewportWidth - borderLeftRightSize
 	} else {
@@ -119,9 +119,9 @@ func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 	m.taskScreenState.taskInput.Width = m.taskScreenState.outerWidth - borderLeftRightSize - taskInputPromptSize
 
 	switch msg := msg.(type) {
-	case bt.KeyMsg:
+	case tea.KeyMsg:
 		switch msg.Type {
-		case bt.KeyTab:
+		case tea.KeyTab:
 			if m.active < len(m.tabs)-1 {
 				m.taskScreenState.active++
 				m.updateContent()
@@ -129,7 +129,7 @@ func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 				m.taskScreenState.active--
 				m.updateContent()
 			}
-		case bt.KeyShiftTab:
+		case tea.KeyShiftTab:
 			if m.active > 0 {
 				m.taskScreenState.active--
 				m.updateContent()
@@ -137,12 +137,12 @@ func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 				m.taskScreenState.active++
 				m.updateContent()
 			}
-		case bt.KeyEscape:
+		case tea.KeyEscape:
 			m.ignoreQKey = false
 			m.taskScreenState.taskInput.Reset()
 			m.taskScreenState.taskInput.Blur()
 			return m, nil
-		case bt.KeyRunes:
+		case tea.KeyRunes:
 			if msg.String() == "a" {
 				m.ignoreQKey = true
 				return m, m.taskScreenState.taskInput.Focus()
@@ -150,7 +150,7 @@ func (m model) TaskScrrenUpdate(msg bt.Msg) (bt.Model, bt.Cmd) {
 		}
 	}
 
-	var cmd bt.Cmd
+	var cmd tea.Cmd
 	m.taskScreenState.taskInput, cmd = m.taskScreenState.taskInput.Update(msg)
 	return m, cmd
 }
