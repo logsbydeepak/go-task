@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/log"
 )
 
 type taskScreenState struct {
@@ -143,6 +144,14 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else {
 				m.taskScreenState.active++
 				m.updateContent()
+			}
+		case tea.KeyEnter:
+			if m.taskScreenState.taskInput.Focused() {
+				value := m.taskScreenState.taskInput.Value()
+				log.Info(value)
+				m.ignoreQKey = false
+				m.taskScreenState.taskInput.Reset()
+				m.taskScreenState.taskInput.Blur()
 			}
 		case tea.KeyEscape:
 			m.ignoreQKey = false
