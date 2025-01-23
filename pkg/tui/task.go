@@ -150,7 +150,7 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.taskScreenState.taskInput.Blur()
 			return m, nil
 		case tea.KeyRunes:
-			if msg.String() == "a" {
+			if !m.taskScreenState.taskInput.Focused() && msg.String() == "a" {
 				m.ignoreQKey = true
 				return m, m.taskScreenState.taskInput.Focus()
 			}
