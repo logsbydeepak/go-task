@@ -7,9 +7,8 @@ import (
 	"example.com/pkg/db"
 	"example.com/pkg/task"
 	"github.com/charmbracelet/bubbles/textinput"
-	"github.com/charmbracelet/bubbletea"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/log"
 )
 
 type taskScreenState struct {
@@ -148,10 +147,13 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyEnter:
 			if m.taskScreenState.taskInput.Focused() {
 				value := m.taskScreenState.taskInput.Value()
-				log.Info(value)
+				if len(value) != 0 {
+					db.Create(value)
+				}
 				m.ignoreQKey = false
 				m.taskScreenState.taskInput.Reset()
 				m.taskScreenState.taskInput.Blur()
+				m.updateContent()
 			}
 		case tea.KeyEscape:
 			m.ignoreQKey = false
