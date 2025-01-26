@@ -73,7 +73,7 @@ func (m model) TaskScreenView() string {
 	zeroCount := len(strconv.Itoa(int(tasks[0].ID)))
 	content := make([]string, len(tasks))
 
-	validDescriptionWidth := innerWidth - zeroCount - 3 // 1+2=3, 1 for space and 2 for left and right padding
+	validDescriptionWidth := innerWidth - zeroCount - 3 - 4 // 1+2=3, 1 for space, 2 for left and right padding, 4 for symbols
 	for i, task := range tasks {
 		id := strconv.Itoa(int(task.ID))
 		idLen := len(id)
@@ -82,13 +82,16 @@ func (m model) TaskScreenView() string {
 		}
 
 		description := task.Description
-		if task.IsComplete {
-			description += "✓"
-		} else {
-			description += "⨯"
-		}
 		if len(description) > validDescriptionWidth {
 			description = description[:validDescriptionWidth-3] + "..."
+		}
+
+		description += strings.Repeat(" ", validDescriptionWidth-len(description))
+
+		if task.IsComplete {
+			description += " ✓  "
+		} else {
+			description += "   ⨯"
 		}
 
 		content[i] = lipgloss.NewStyle().Foreground(GrayColor).Render(id) + " " + description
