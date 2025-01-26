@@ -74,14 +74,19 @@ func (m model) TaskScreenView() string {
 	content := make([]string, len(tasks))
 
 	validDescriptionWidth := innerWidth - zeroCount - 3 // 1+2=3, 1 for space and 2 for left and right padding
-	for i, each := range tasks {
-		id := strconv.Itoa(int(each.ID))
+	for i, task := range tasks {
+		id := strconv.Itoa(int(task.ID))
 		idLen := len(id)
 		if zeroCount > idLen {
 			id = strings.Repeat(" ", zeroCount-idLen) + id
 		}
 
-		description := each.Description
+		description := task.Description
+		if task.IsComplete {
+			description += "✓"
+		} else {
+			description += "⨯"
+		}
 		if len(description) > validDescriptionWidth {
 			description = description[:validDescriptionWidth-3] + "..."
 		}
