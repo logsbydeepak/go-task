@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mergestat/timediff"
 )
 
 type taskScreenState struct {
@@ -188,36 +190,48 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var tableCmd tea.Cmd
 	m.taskScreenState.taskInput, taskCmd = m.taskScreenState.taskInput.Update(msg)
 	m.taskScreenState.table, tableCmd = m.table.Update(msg)
-	m.taskScreenState.table.Focus()
 
-	columns := []table.Column{
-		{Width: 4},
-		{Width: 10},
-		{Width: 10},
-		{Width: 10},
+	if !m.taskScreenState.taskInput.Focused() {
+		m.taskScreenState.table.Focus()
+	} else {
+		m.taskScreenState.table.Blur()
 	}
-
-	rows := []table.Row{
-		{"1", "Tokyo", "Japan", "37,274,000"},
-		{"2", "Delhi", "India", "32,065,760"},
-	}
-	m.taskScreenState.table.SetColumns(columns)
-	m.taskScreenState.table.SetRows(rows)
 
 	return m, tea.Batch(taskCmd, tableCmd)
 }
 
 func (m *model) updateContent() {
+	var tasks []task.Task
 	switch m.active {
 	case 0:
 		task, err := db.GetAllPendingTask()
 		if err == nil {
 			m.tasks = task
+			tasks = task
 		}
 	case 1:
 		task, err := db.GetAllTask()
+		tasks = task
 		if err == nil {
 			m.tasks = task
+			tasks = task
 		}
 	}
+
+	columns := []table.Column{
+		{Title: "ID", Width: 4},
+		{Title: "Description", Width: 20},
+		{Title: "CreatedAt", Width: 12},
+		{Title: "IsComplete", Width: 10},
+	}
+
+	var rows []table.Row
+
+	for _, each := range tasks {
+		time := timediff.TimeDiff(each.CreatedAt)
+		rows = append(rows, table.Row{fmt.Sprintf("%v", each.ID), each.Description, time, fmt.Sprintf("%v", each.IsComplete)})
+	}
+
+	m.taskScreenState.table.SetColumns(columns)
+	m.taskScreenState.table.SetRows(rows)
 }
