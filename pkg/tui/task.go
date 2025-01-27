@@ -6,6 +6,7 @@ import (
 
 	"example.com/pkg/db"
 	"example.com/pkg/task"
+	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -19,6 +20,7 @@ type taskScreenState struct {
 
 	outerWidth  int
 	outerHeight int
+	table       table.Model
 }
 
 const (
@@ -37,6 +39,8 @@ func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
 	ti.CharLimit = 156
 	ti.PlaceholderStyle = lipgloss.NewStyle().Italic(true).Foreground(GrayColor)
 
+	t := table.New()
+
 	m.screen = taskScreen
 	m.taskScreenState = taskScreenState{
 		tabs:      []string{"pending", "all"},
@@ -44,6 +48,7 @@ func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
 
 		outerWidth:  maxWidthSize,
 		outerHeight: maxHeightSize,
+		table:       t,
 	}
 	m.updateContent()
 
@@ -97,12 +102,15 @@ func (m model) TaskScreenView() string {
 		content[i] = lipgloss.NewStyle().Foreground(GrayColor).Render(id) + " " + description
 	}
 
+	_ = content
+
 	innersqr := lipgloss.NewStyle().
 		Width(innerWidth).
 		Height(innerHeight).
 		Border(lipgloss.RoundedBorder()).
 		Padding(0, 1).
-		Render(m.taskScreenState.taskInput.View() + "\n" + strings.Join(content, "\n"))
+		// Render(m.taskScreenState.taskInput.View() + "\n" + strings.Join(content, "\n"))
+		Render(m.taskScreenState.taskInput.View() + "\n" + m.taskScreenState.table.View())
 
 	outersqr := lipgloss.NewStyle().Width(m.taskScreenState.outerWidth).
 		Height(m.taskScreenState.outerHeight).
@@ -176,9 +184,27 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	var cmd tea.Cmd
-	m.taskScreenState.taskInput, cmd = m.taskScreenState.taskInput.Update(msg)
-	return m, cmd
+	var taskCmd tea.Cmd
+	var tableCmd tea.Cmd
+	m.taskScreenState.taskInput, taskCmd = m.taskScreenState.taskInput.Update(msg)
+	m.taskScreenState.table, tableCmd = m.table.Update(msg)
+	m.taskScreenState.table.Focus()
+
+	columns := []table.Column{
+		{Width: 4},
+		{Width: 10},
+		{Width: 10},
+		{Width: 10},
+	}
+
+	rows := []table.Row{
+		{"1", "Tokyo", "Japan", "37,274,000"},
+		{"2", "Delhi", "India", "32,065,760"},
+	}
+	m.taskScreenState.table.SetColumns(columns)
+	m.taskScreenState.table.SetRows(rows)
+
+	return m, tea.Batch(taskCmd, tableCmd)
 }
 
 func (m *model) updateContent() {
