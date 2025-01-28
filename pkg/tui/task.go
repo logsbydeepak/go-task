@@ -77,41 +77,11 @@ func (m model) TaskScreenView() string {
 		tasks = tasks[:innerHeight]
 	}
 
-	zeroCount := len(strconv.Itoa(int(tasks[0].ID)))
-	content := make([]string, len(tasks))
-
-	validDescriptionWidth := innerWidth - zeroCount - 3 - 4 // 1+2=3, 1 for space, 2 for left and right padding, 4 for symbols
-	for i, task := range tasks {
-		id := strconv.Itoa(int(task.ID))
-		idLen := len(id)
-		if zeroCount > idLen {
-			id = strings.Repeat(" ", zeroCount-idLen) + id
-		}
-
-		description := task.Description
-		if len(description) > validDescriptionWidth {
-			description = description[:validDescriptionWidth-3] + "..."
-		}
-
-		description += strings.Repeat(" ", validDescriptionWidth-len(description))
-
-		if task.IsComplete {
-			description += " ✓  "
-		} else {
-			description += "   ⨯"
-		}
-
-		content[i] = lipgloss.NewStyle().Foreground(GrayColor).Render(id) + " " + description
-	}
-
-	_ = content
-
 	innersqr := lipgloss.NewStyle().
 		Width(innerWidth).
 		Height(innerHeight).
 		Border(lipgloss.RoundedBorder()).
 		Padding(0, 1).
-		// Render(m.taskScreenState.taskInput.View() + "\n" + strings.Join(content, "\n"))
 		Render(m.taskScreenState.taskInput.View() + "\n" + m.taskScreenState.table.View())
 
 	outersqr := lipgloss.NewStyle().Width(m.taskScreenState.outerWidth).
@@ -206,26 +176,22 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *model) updateContent() {
-	var tasks []task.Task
 	switch m.active {
 	case 0:
 		task, err := db.GetAllPendingTask()
 		if err == nil {
 			m.tasks = task
-			tasks = task
 		}
 	case 1:
 		task, err := db.GetAllTask()
-		tasks = task
 		if err == nil {
 			m.tasks = task
-			tasks = task
 		}
 	}
 
 	var rows []table.Row
 
-	for _, each := range tasks {
+	for _, each := range m.tasks {
 		time := timediff.TimeDiff(each.CreatedAt)
 		var isComplete string
 		if each.IsComplete {
