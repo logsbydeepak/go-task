@@ -143,6 +143,9 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	m.taskScreenState.taskInput.Width = m.taskScreenState.outerWidth - borderLeftRightSize - taskInputPromptSize
 
+	innerHeight := m.taskScreenState.outerHeight - borderLeftRightSize - taskInputHeightSize
+	m.taskScreenState.table.SetHeight(innerHeight)
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
