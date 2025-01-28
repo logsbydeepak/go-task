@@ -144,7 +144,9 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.taskScreenState.taskInput.Width = m.taskScreenState.outerWidth - borderLeftRightSize - taskInputPromptSize
 
 	innerHeight := m.taskScreenState.outerHeight - borderLeftRightSize - taskInputHeightSize
+	innerWidth := m.taskScreenState.outerWidth - borderLeftRightSize
 	m.taskScreenState.table.SetHeight(innerHeight)
+	m.taskScreenState.table.SetWidth(innerWidth)
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -221,20 +223,26 @@ func (m *model) updateContent() {
 		}
 	}
 
-	columns := []table.Column{
-		{Title: "ID", Width: 4},
-		{Title: "Description", Width: 20},
-		{Title: "CreatedAt", Width: 12},
-		{Title: "IsComplete", Width: 10},
-	}
-
 	var rows []table.Row
 
 	for _, each := range tasks {
 		time := timediff.TimeDiff(each.CreatedAt)
-		rows = append(rows, table.Row{fmt.Sprintf("%v", each.ID), each.Description, time, fmt.Sprintf("%v", each.IsComplete)})
+		var isComplete string
+		if each.IsComplete {
+			isComplete += "  ✓   "
+		} else {
+			isComplete += "   ⨯  "
+		}
+
+		rows = append(rows, table.Row{fmt.Sprintf("%v", each.ID), each.Description, time, isComplete})
 	}
 
+	columns := []table.Column{
+		{Title: "ID", Width: 2},
+		{Title: "Description", Width: 28},
+		{Title: "CreatedAt", Width: 12},
+		{Title: "Status", Width: 6},
+	}
 	m.taskScreenState.table.SetColumns(columns)
 	m.taskScreenState.table.SetRows(rows)
 }
