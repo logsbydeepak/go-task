@@ -164,10 +164,15 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		case tea.KeySpace:
 			if m.taskScreenState.table.Focused() {
-				id, _ := strconv.Atoi(m.taskScreenState.table.SelectedRow()[0])
-				db.MarkTaskCompleted(id)
-				m.updateContent()
-				return m, nil
+				selected := m.taskScreenState.table.SelectedRow()
+				if len(selected) != 0 {
+					id, err := strconv.Atoi(m.taskScreenState.table.SelectedRow()[0])
+					if err == nil {
+						db.MarkTaskCompleted(id)
+						m.updateContent()
+						return m, nil
+					}
+				}
 			}
 		case tea.KeyRunes:
 			if !m.taskScreenState.taskInput.Focused() && msg.String() == "a" {
