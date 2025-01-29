@@ -153,6 +153,13 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.taskScreenState.taskInput.Reset()
 			m.taskScreenState.taskInput.Blur()
 			return m, nil
+		case tea.KeySpace:
+			if m.taskScreenState.table.Focused() {
+				id, _ := strconv.Atoi(m.taskScreenState.table.SelectedRow()[0])
+				db.MarkTaskCompleted(id)
+				m.updateContent()
+				return m, nil
+			}
 		case tea.KeyRunes:
 			if !m.taskScreenState.taskInput.Focused() && msg.String() == "a" {
 				m.ignoreQKey = true
@@ -195,9 +202,9 @@ func (m *model) updateContent() {
 		time := timediff.TimeDiff(each.CreatedAt)
 		var isComplete string
 		if each.IsComplete {
-			isComplete += "  ✓   "
+			isComplete += "✓"
 		} else {
-			isComplete += "   ⨯  "
+			isComplete += "⨯"
 		}
 
 		rows = append(rows, table.Row{fmt.Sprintf("%v", each.ID), each.Description, time, isComplete})
