@@ -72,9 +72,18 @@ func (m model) TaskScreenView() string {
 	innerWidth := m.taskScreenState.outerWidth - borderLeftRightSize
 	innerHeight := m.taskScreenState.outerHeight - borderLeftRightSize - taskInputHeightSize
 	tasks := m.taskScreenState.tasks
+	tasksLen := len(tasks)
 
-	if len(tasks) > innerHeight-taskInputHeightSize {
+	if tasksLen > innerHeight-taskInputHeightSize {
 		tasks = tasks[:innerHeight]
+	}
+
+	var taskView string
+
+	if tasksLen == 0 {
+		taskView = "No task to show"
+	} else {
+		taskView = m.taskScreenState.table.View()
 	}
 
 	innersqr := lipgloss.NewStyle().
@@ -82,7 +91,7 @@ func (m model) TaskScreenView() string {
 		Height(innerHeight).
 		Border(lipgloss.RoundedBorder()).
 		Padding(0, 1).
-		Render(m.taskScreenState.taskInput.View() + "\n" + m.taskScreenState.table.View())
+		Render(m.taskScreenState.taskInput.View() + "\n" + taskView)
 
 	outersqr := lipgloss.NewStyle().Width(m.taskScreenState.outerWidth).
 		Height(m.taskScreenState.outerHeight).
