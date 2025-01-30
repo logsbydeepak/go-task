@@ -7,7 +7,10 @@ import (
 
 	"example.com/pkg/db"
 	"example.com/pkg/task"
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
+
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -23,6 +26,9 @@ type taskScreenState struct {
 	outerWidth  int
 	outerHeight int
 	table       table.Model
+
+	help              help.Model
+	shortHelpViewKeys []key.Binding
 }
 
 const (
@@ -35,6 +41,37 @@ const (
 	GrayColor = lipgloss.Color("8")
 )
 
+var shortHelpViewKeys = []key.Binding{
+	key.NewBinding(
+		key.WithKeys("up", "k"),
+		key.WithHelp("↑/k", "move up"),
+	),
+	key.NewBinding(
+		key.WithKeys("down", "j"),
+		key.WithHelp("↓/j", "move down"),
+	),
+	key.NewBinding(
+		key.WithKeys("left", "h"),
+		key.WithHelp("←/h", "move left"),
+	),
+	key.NewBinding(
+		key.WithKeys("right", "l"),
+		key.WithHelp("→/l", "move right"),
+	),
+	key.NewBinding(
+		key.WithKeys("?"),
+		key.WithHelp("?", "toggle help"),
+	),
+	key.NewBinding(
+		key.WithKeys("q", "esc", "ctrl+c"),
+		key.WithHelp("q", "quit"),
+	),
+	key.NewBinding(
+		key.WithKeys("<space>", "esc", "ctrl+c"),
+		key.WithHelp("q", "quit"),
+	),
+}
+
 func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
 	ti := textinput.New()
 	ti.Placeholder = "new task"
@@ -42,15 +79,17 @@ func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
 	ti.PlaceholderStyle = lipgloss.NewStyle().Italic(true).Foreground(GrayColor)
 
 	t := table.New()
-
+	h := help.New()
 	m.screen = taskScreen
 	m.taskScreenState = taskScreenState{
 		tabs:      []string{"pending", "all"},
 		taskInput: ti,
 
-		outerWidth:  maxWidthSize,
-		outerHeight: maxHeightSize,
-		table:       t,
+		outerWidth:        maxWidthSize,
+		outerHeight:       maxHeightSize,
+		table:             t,
+		help:              h,
+		shortHelpViewKeys: shortHelpViewKeys,
 	}
 	m.updateContent()
 
@@ -175,7 +214,8 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 		case tea.KeyRunes:
-			if !m.taskScreenState.taskInput.Focused() && msg.String() == "a" {
+			currentKey := msg.String()
+			if !m.taskScreenState.taskInput.Focused() && currentKey == "a" {
 				m.ignoreQKey = true
 				return m, m.taskScreenState.taskInput.Focus()
 			}
