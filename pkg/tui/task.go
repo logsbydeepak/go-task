@@ -43,6 +43,14 @@ const (
 
 var shortHelpViewKeys = []key.Binding{
 	key.NewBinding(
+		key.WithKeys("a"),
+		key.WithHelp("a", "new task"),
+	),
+	key.NewBinding(
+		key.WithKeys("space"),
+		key.WithHelp("<space>", "mark task as done"),
+	),
+	key.NewBinding(
 		key.WithKeys("up", "k"),
 		key.WithHelp("↑/k", "move up"),
 	),
@@ -66,15 +74,11 @@ var shortHelpViewKeys = []key.Binding{
 		key.WithKeys("q", "esc", "ctrl+c"),
 		key.WithHelp("q", "quit"),
 	),
-	key.NewBinding(
-		key.WithKeys("<space>", "esc", "ctrl+c"),
-		key.WithHelp("q", "quit"),
-	),
 }
 
 func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
 	ti := textinput.New()
-	ti.Placeholder = "new task"
+	ti.Placeholder = "new task, press ? for help"
 	ti.CharLimit = 156
 	ti.PlaceholderStyle = lipgloss.NewStyle().Italic(true).Foreground(GrayColor)
 
@@ -165,6 +169,7 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 	innerWidth := m.taskScreenState.outerWidth - borderLeftRightSize
 	m.taskScreenState.table.SetHeight(innerHeight - 1) // 1 for column
 	m.taskScreenState.table.SetWidth(innerWidth)
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
