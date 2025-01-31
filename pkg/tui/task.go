@@ -226,18 +226,25 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	var taskCmd tea.Cmd
-	var tableCmd tea.Cmd
-	m.taskScreenState.taskInput, taskCmd = m.taskScreenState.taskInput.Update(msg)
-	m.taskScreenState.table, tableCmd = m.table.Update(msg)
+	var cmds []tea.Cmd
 
-	if !m.taskScreenState.taskInput.Focused() {
-		m.taskScreenState.table.Focus()
-	} else {
-		m.taskScreenState.table.Blur()
+	var cmd tea.Cmd
+	{
+		m.taskScreenState.taskInput, cmd = m.taskScreenState.taskInput.Update(msg)
+		cmds = append(cmds, cmd)
 	}
 
-	return m, tea.Batch(taskCmd, tableCmd)
+	{
+		if m.taskScreenState.taskInput.Focused() {
+			m.taskScreenState.table.Blur()
+		} else {
+			m.taskScreenState.table.Focus()
+			m.taskScreenState.table, cmd = m.table.Update(msg)
+			cmds = append(cmds, cmd)
+		}
+	}
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m *model) updateContent() {
