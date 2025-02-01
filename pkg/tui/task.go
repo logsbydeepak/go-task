@@ -130,12 +130,19 @@ func (m model) TaskScreenView() string {
 		taskView = m.taskScreenState.table.View()
 	}
 
+	var innersqlContent string
+	if m.taskScreenState.showHelp {
+		innersqlContent = "Help"
+	} else {
+		innersqlContent = m.taskScreenState.taskInput.View() + "\n" + taskView
+	}
+
 	innersqr := lipgloss.NewStyle().
 		Width(innerWidth).
 		Height(innerHeight).
 		Border(lipgloss.RoundedBorder()).
 		Padding(0, 1).
-		Render(m.taskScreenState.taskInput.View() + "\n" + taskView)
+		Render(innersqlContent)
 
 	outersqr := lipgloss.NewStyle().Width(m.taskScreenState.outerWidth).
 		Height(m.taskScreenState.outerHeight).
