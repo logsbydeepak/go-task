@@ -29,6 +29,7 @@ type taskScreenState struct {
 
 	help              help.Model
 	shortHelpViewKeys []key.Binding
+	showHelp          bool
 }
 
 const (
@@ -222,6 +223,10 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if !m.taskScreenState.taskInput.Focused() && currentKey == "a" {
 				m.ignoreQKey = true
 				return m, m.taskScreenState.taskInput.Focus()
+			}
+			if !m.taskScreenState.taskInput.Focused() && currentKey == "?" {
+				m.taskScreenState.showHelp = true
+				return m, nil
 			}
 		}
 	}
