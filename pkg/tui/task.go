@@ -87,7 +87,7 @@ func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
 	h := help.New()
 	m.screen = taskScreen
 	m.taskScreenState = taskScreenState{
-		tabs:      []string{"pending", "all"},
+		tabs:      []string{"pending", "all", "help"},
 		taskInput: ti,
 
 		outerWidth:        maxWidthSize,
@@ -115,26 +115,30 @@ func (m model) TaskScreenView() string {
 
 	innerWidth := m.taskScreenState.outerWidth - borderLeftRightSize
 	innerHeight := m.taskScreenState.outerHeight - borderLeftRightSize - taskInputHeightSize
-	tasks := m.taskScreenState.tasks
-	tasksLen := len(tasks)
 
-	if tasksLen > innerHeight-taskInputHeightSize {
-		tasks = tasks[:innerHeight]
+	var content string
+
+	if m.active == 0 || m.active == 1 {
+		tasks := m.taskScreenState.tasks
+		tasksLen := len(tasks)
+
+		if tasksLen > innerHeight-taskInputHeightSize {
+			tasks = tasks[:innerHeight]
+		}
+
+		var taskView string
+
+		if tasksLen == 0 {
+			taskView = "No task to show"
+		} else {
+			taskView = m.taskScreenState.table.View()
+		}
+
+		content = m.taskScreenState.taskInput.View() + "\n" + taskView
 	}
 
-	var taskView string
-
-	if tasksLen == 0 {
-		taskView = "No task to show"
-	} else {
-		taskView = m.taskScreenState.table.View()
-	}
-
-	var innersqlContent string
-	if m.taskScreenState.showHelp {
-		innersqlContent = "Help"
-	} else {
-		innersqlContent = m.taskScreenState.taskInput.View() + "\n" + taskView
+	if m.active == 2 {
+		content = "help"
 	}
 
 	innersqr := lipgloss.NewStyle().
@@ -142,7 +146,7 @@ func (m model) TaskScreenView() string {
 		Height(innerHeight).
 		Border(lipgloss.RoundedBorder()).
 		Padding(0, 1).
-		Render(innersqlContent)
+		Render(content)
 
 	outersqr := lipgloss.NewStyle().Width(m.taskScreenState.outerWidth).
 		Height(m.taskScreenState.outerHeight).
