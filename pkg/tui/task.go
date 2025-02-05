@@ -185,21 +185,25 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyTab:
-			if m.active < len(m.tabs)-1 {
+			lastIndex := len(m.tabs) - 1
+			if m.active == lastIndex {
+				m.taskScreenState.active = 0
+			} else if m.active < lastIndex {
 				m.taskScreenState.active++
-				m.updateContent()
 			} else {
 				m.taskScreenState.active--
-				m.updateContent()
 			}
+			m.updateContent()
 		case tea.KeyShiftTab:
-			if m.active > 0 {
+			lastIndex := len(m.tabs) - 1
+			if m.active == 0 {
+				m.taskScreenState.active = lastIndex
+			} else if m.active > 0 {
 				m.taskScreenState.active--
-				m.updateContent()
 			} else {
 				m.taskScreenState.active++
-				m.updateContent()
 			}
+			m.updateContent()
 		case tea.KeyEnter:
 			if m.taskScreenState.taskInput.Focused() {
 				value := m.taskScreenState.taskInput.Value()
