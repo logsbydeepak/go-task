@@ -38,7 +38,8 @@ const (
 	taskInputPromptSize = 5
 	taskInputHeightSize = 1
 
-	GrayColor = lipgloss.Color("8")
+	GrayColor  = lipgloss.Color("8")
+	WhiteColor = lipgloss.Color("7")
 )
 
 var shortHelpViewKeys = []key.Binding{
@@ -84,6 +85,8 @@ func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
 
 	t := table.New()
 	h := help.New()
+	h.Styles.ShortKey = lipgloss.NewStyle().Bold(true).Foreground(WhiteColor)
+	h.Styles.ShortDesc = lipgloss.NewStyle().Foreground(WhiteColor)
 	m.screen = taskScreen
 	m.taskScreenState = taskScreenState{
 		tabs:      []string{"pending", "all", "help"},
@@ -137,7 +140,7 @@ func (m model) TaskScreenView() string {
 	}
 
 	if m.active == 2 {
-		content = "help"
+		content = m.taskScreenState.help.ShortHelpView(shortHelpViewKeys)
 	}
 
 	innersqr := lipgloss.NewStyle().

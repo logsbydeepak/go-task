@@ -44,6 +44,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyCtrlC:
 			return m, tea.Quit
+		case tea.KeyEsc:
+			if m.ignoreQKey == false {
+				return m, tea.Quit
+			}
 		case tea.KeyRunes:
 			if m.ignoreQKey == false && msg.String() == "q" {
 				return m, tea.Quit
