@@ -49,6 +49,14 @@ var shortHelpViewKeys = []key.Binding{
 		key.WithHelp("a", "new task"),
 	),
 	key.NewBinding(
+		key.WithKeys("tab"),
+		key.WithHelp("<tab>", "move to next tab"),
+	),
+	key.NewBinding(
+		key.WithKeys("tab"),
+		key.WithHelp("<tab>", "move to previous tab"),
+	),
+	key.NewBinding(
 		key.WithKeys("space"),
 		key.WithHelp("<space>", "mark task as done"),
 	),
