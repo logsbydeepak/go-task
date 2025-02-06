@@ -38,8 +38,9 @@ const (
 	taskInputPromptSize = 5
 	taskInputHeightSize = 1
 
-	GrayColor  = lipgloss.Color("8")
-	WhiteColor = lipgloss.Color("7")
+	GrayColor   = lipgloss.Color("8")
+	WhiteColor  = lipgloss.Color("7")
+	AccentColor = lipgloss.Color("212")
 )
 
 var shortHelpViewKeys = []key.Binding{
@@ -109,9 +110,9 @@ func (m model) TaskScreenView() string {
 	var tabs strings.Builder
 	for i, tab := range m.tabs {
 		if i == m.active {
-			tabs.WriteString(tabStyle.Bold(true).Render(tab + "_"))
+			tabs.WriteString(tabStyle.Bold(true).Render(tab))
 		} else {
-			tabs.WriteString(tabStyle.Render(tab + " "))
+			tabs.WriteString(tabStyle.Foreground(GrayColor).Render(tab))
 		}
 	}
 
