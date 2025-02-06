@@ -29,6 +29,7 @@ type taskScreenState struct {
 
 	help              help.Model
 	shortHelpViewKeys []key.Binding
+	helpTable         table.Model
 }
 
 const (
@@ -86,6 +87,45 @@ var shortHelpViewKeys = []key.Binding{
 	),
 }
 
+var helpKeys = []helpKey{
+	helpKey{
+		key:         "a",
+		description: "add new task",
+	},
+	helpKey{
+		key:         "<tab>",
+		description: "move to next tab",
+	},
+	helpKey{
+		key:         "<shift+tab>",
+		description: "move to previous tab",
+	},
+	helpKey{
+		key:         "<space>",
+		description: "mark task as done",
+	},
+	helpKey{
+		key:         "↑/k",
+		description: "move up",
+	},
+	helpKey{
+		key:         "↓/j",
+		description: "move down",
+	},
+	helpKey{
+		key:         "↓/j",
+		description: "move down",
+	},
+	helpKey{
+		key:         "?",
+		description: "switch to help",
+	},
+	helpKey{
+		key:         "q, <esc>, <ctrl+c>",
+		description: "quit",
+	},
+}
+
 func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
 	ti := textinput.New()
 	ti.Placeholder = "new task, press ? for help"
@@ -97,6 +137,28 @@ func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
 	h.Styles.ShortKey = lipgloss.NewStyle().Bold(true).Foreground(WhiteColor)
 	h.Styles.ShortDesc = lipgloss.NewStyle().Foreground(WhiteColor)
 	m.screen = taskScreen
+
+	helpColumns := []table.Column{
+		{Title: "Keys", Width: 18},
+		{Title: "Description", Width: 20},
+	}
+
+	var helpRows []table.Row
+
+	for _, each := range helpKeys {
+		helpRows = append(helpRows, table.Row{each.key, each.description})
+	}
+	helpTable := table.New()
+	helpTable.SetColumns(helpColumns)
+	helpTable.SetRows(helpRows)
+
+	columns := []table.Column{
+		{Title: "Keys", Width: 4},
+		{Title: "Description", Width: 10},
+	}
+
+	m.taskScreenState.table.SetColumns(columns)
+
 	m.taskScreenState = taskScreenState{
 		tabs:      []string{"pending", "all", "help"},
 		taskInput: ti,
@@ -105,6 +167,7 @@ func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
 		outerHeight:       maxHeightSize,
 		table:             t,
 		help:              h,
+		helpTable:         helpTable,
 		shortHelpViewKeys: shortHelpViewKeys,
 	}
 	m.updateContent()
@@ -149,7 +212,7 @@ func (m model) TaskScreenView() string {
 	}
 
 	if m.active == 2 {
-		content = m.taskScreenState.help.ShortHelpView(shortHelpViewKeys)
+		content = m.taskScreenState.helpTable.View()
 	}
 
 	innersqr := lipgloss.NewStyle().
@@ -192,6 +255,8 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 	innerWidth := m.taskScreenState.outerWidth - borderLeftRightSize
 	m.taskScreenState.table.SetHeight(innerHeight - 1) // 1 for column
 	m.taskScreenState.table.SetWidth(innerWidth)
+	m.taskScreenState.helpTable.SetHeight(innerHeight - 1) // 1 for column
+	m.taskScreenState.helpTable.SetWidth(innerWidth)
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -273,6 +338,12 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.taskScreenState.table, cmd = m.table.Update(msg)
 			cmds = append(cmds, cmd)
 		}
+
+		if m.active == 2 {
+			m.taskScreenState.helpTable.Focus()
+			m.taskScreenState.helpTable, cmd = m.helpTable.Update(msg)
+			cmds = append(cmds, cmd)
+		}
 	}
 
 	return m, tea.Batch(cmds...)
@@ -312,6 +383,12 @@ func (m *model) updateContent() {
 		{Title: "CreatedAt", Width: 12},
 		{Title: "Status", Width: 6},
 	}
+
 	m.taskScreenState.table.SetColumns(columns)
 	m.taskScreenState.table.SetRows(rows)
+}
+
+type helpKey struct {
+	key         string
+	description string
 }
