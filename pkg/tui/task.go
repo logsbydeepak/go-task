@@ -31,8 +31,8 @@ type taskScreenState struct {
 }
 
 const (
-	allTaskTab = iota
-	pendingTaskTab
+	pendingTaskTab = iota
+	allTaskTab
 	helpTaskTab
 
 	maxWidthSize        = 60
@@ -117,15 +117,9 @@ func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
 	helpTable.SetColumns(helpColumns)
 	helpTable.SetRows(helpRows)
 
-	helpTableColumns := []table.Column{
-		{Title: "Keys", Width: 4},
-		{Title: "Description", Width: 10},
-	}
-
-	m.taskScreenState.taskTable.SetColumns(helpTableColumns)
-
 	m.taskScreenState = taskScreenState{
 		tabs:      []string{"pending", "all", "help"},
+		activeTab: pendingTaskTab,
 		taskInput: taskInput,
 
 		outerWidth:  maxWidthSize,
@@ -156,8 +150,7 @@ func (m model) TaskScreenView() string {
 	var content string
 
 	switch m.activeTab {
-	case pendingTaskTab:
-	case allTaskTab:
+	case allTaskTab, pendingTaskTab:
 		var taskView string
 		if len(m.taskScreenState.tasks) == 0 {
 			taskView = "No task to show"
@@ -304,13 +297,13 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *model) updateContent() {
 	switch m.activeTab {
-	case pendingTaskTab:
-		task, err := db.GetAllPendingTask()
+	case allTaskTab:
+		task, err := db.GetAllTask()
 		if err == nil {
 			m.tasks = task
 		}
-	case allTaskTab:
-		task, err := db.GetAllTask()
+	case pendingTaskTab:
+		task, err := db.GetAllPendingTask()
 		if err == nil {
 			m.tasks = task
 		}
