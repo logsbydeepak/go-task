@@ -7,7 +7,6 @@ import (
 
 	"example.com/pkg/db"
 	"example.com/pkg/task"
-	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 
 	"github.com/charmbracelet/bubbles/textinput"
@@ -17,17 +16,17 @@ import (
 )
 
 type taskScreenState struct {
-	tabs      []string
-	tasks     []task.Task
-	active    int
+	tabs   []string
+	tasks  []task.Task
+	active int
+
 	taskInput textinput.Model
 
 	outerWidth  int
 	outerHeight int
-	table       table.Model
 
-	shortHelpViewKeys []key.Binding
-	helpTable         table.Model
+	taskTable table.Model
+	helpTable table.Model
 }
 
 const (
@@ -36,54 +35,7 @@ const (
 	borderLeftRightSize = 2
 	taskInputPromptSize = 5
 	taskInputHeightSize = 1
-
-	GrayColor   = lipgloss.Color("8")
-	WhiteColor  = lipgloss.Color("7")
-	AccentColor = lipgloss.Color("212")
 )
-
-var shortHelpViewKeys = []key.Binding{
-	key.NewBinding(
-		key.WithKeys("a"),
-		key.WithHelp("a", "new task"),
-	),
-	key.NewBinding(
-		key.WithKeys("tab"),
-		key.WithHelp("<tab>", "move to next tab"),
-	),
-	key.NewBinding(
-		key.WithKeys("tab"),
-		key.WithHelp("<tab>", "move to previous tab"),
-	),
-	key.NewBinding(
-		key.WithKeys("space"),
-		key.WithHelp("<space>", "mark task as done"),
-	),
-	key.NewBinding(
-		key.WithKeys("up", "k"),
-		key.WithHelp("↑/k", "move up"),
-	),
-	key.NewBinding(
-		key.WithKeys("down", "j"),
-		key.WithHelp("↓/j", "move down"),
-	),
-	key.NewBinding(
-		key.WithKeys("left", "h"),
-		key.WithHelp("←/h", "move left"),
-	),
-	key.NewBinding(
-		key.WithKeys("right", "l"),
-		key.WithHelp("→/l", "move right"),
-	),
-	key.NewBinding(
-		key.WithKeys("?"),
-		key.WithHelp("?", "toggle help"),
-	),
-	key.NewBinding(
-		key.WithKeys("q", "esc", "ctrl+c"),
-		key.WithHelp("q", "quit"),
-	),
-}
 
 var helpKeys = []helpKey{
 	helpKey{
@@ -125,13 +77,21 @@ var helpKeys = []helpKey{
 }
 
 func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
+	m.screen = taskScreen
+
 	ti := textinput.New()
 	ti.Placeholder = "new task, press ? for help"
 	ti.CharLimit = 156
 	ti.PlaceholderStyle = lipgloss.NewStyle().Italic(true).Foreground(GrayColor)
 
+	columns := []table.Column{
+		{Title: "ID", Width: 2},
+		{Title: "Description", Width: 28},
+		{Title: "CreatedAt", Width: 12},
+		{Title: "Status", Width: 6},
+	}
 	t := table.New()
-	m.screen = taskScreen
+	t.SetColumns(columns)
 
 	helpColumns := []table.Column{
 		{Title: "Keys", Width: 18},
@@ -147,22 +107,21 @@ func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
 	helpTable.SetColumns(helpColumns)
 	helpTable.SetRows(helpRows)
 
-	columns := []table.Column{
+	helpTableColumns := []table.Column{
 		{Title: "Keys", Width: 4},
 		{Title: "Description", Width: 10},
 	}
 
-	m.taskScreenState.table.SetColumns(columns)
+	m.taskScreenState.taskTable.SetColumns(helpTableColumns)
 
 	m.taskScreenState = taskScreenState{
 		tabs:      []string{"pending", "all", "help"},
 		taskInput: ti,
 
-		outerWidth:        maxWidthSize,
-		outerHeight:       maxHeightSize,
-		table:             t,
-		helpTable:         helpTable,
-		shortHelpViewKeys: shortHelpViewKeys,
+		outerWidth:  maxWidthSize,
+		outerHeight: maxHeightSize,
+		taskTable:   t,
+		helpTable:   helpTable,
 	}
 	m.updateContent()
 
@@ -199,7 +158,7 @@ func (m model) TaskScreenView() string {
 		if tasksLen == 0 {
 			taskView = "No task to show"
 		} else {
-			taskView = m.taskScreenState.table.View()
+			taskView = m.taskScreenState.taskTable.View()
 		}
 
 		content = m.taskScreenState.taskInput.View() + "\n" + taskView
@@ -247,8 +206,8 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	innerHeight := m.taskScreenState.outerHeight - borderLeftRightSize - taskInputHeightSize
 	innerWidth := m.taskScreenState.outerWidth - borderLeftRightSize
-	m.taskScreenState.table.SetHeight(innerHeight - 1) // 1 for column
-	m.taskScreenState.table.SetWidth(innerWidth)
+	m.taskScreenState.taskTable.SetHeight(innerHeight - 1) // 1 for column
+	m.taskScreenState.taskTable.SetWidth(innerWidth)
 	m.taskScreenState.helpTable.SetHeight(innerHeight - 1) // 1 for column
 	m.taskScreenState.helpTable.SetWidth(innerWidth)
 
@@ -292,10 +251,10 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.taskScreenState.taskInput.Blur()
 			return m, nil
 		case tea.KeySpace:
-			if m.taskScreenState.table.Focused() {
-				selected := m.taskScreenState.table.SelectedRow()
+			if m.taskScreenState.taskTable.Focused() {
+				selected := m.taskScreenState.taskTable.SelectedRow()
 				if len(selected) != 0 {
-					id, err := strconv.Atoi(m.taskScreenState.table.SelectedRow()[0])
+					id, err := strconv.Atoi(m.taskScreenState.taskTable.SelectedRow()[0])
 					if err == nil {
 						db.MarkTaskCompleted(id)
 						m.updateContent()
@@ -326,10 +285,10 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	{
 		if m.taskScreenState.taskInput.Focused() {
-			m.taskScreenState.table.Blur()
+			m.taskScreenState.taskTable.Blur()
 		} else {
-			m.taskScreenState.table.Focus()
-			m.taskScreenState.table, cmd = m.table.Update(msg)
+			m.taskScreenState.taskTable.Focus()
+			m.taskScreenState.taskTable, cmd = m.taskTable.Update(msg)
 			cmds = append(cmds, cmd)
 		}
 
@@ -371,15 +330,7 @@ func (m *model) updateContent() {
 		rows = append(rows, table.Row{fmt.Sprintf("%v", each.ID), each.Description, time, isComplete})
 	}
 
-	columns := []table.Column{
-		{Title: "ID", Width: 2},
-		{Title: "Description", Width: 28},
-		{Title: "CreatedAt", Width: 12},
-		{Title: "Status", Width: 6},
-	}
-
-	m.taskScreenState.table.SetColumns(columns)
-	m.taskScreenState.table.SetRows(rows)
+	m.taskScreenState.taskTable.SetRows(rows)
 }
 
 type helpKey struct {

@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 )
 
@@ -22,6 +23,10 @@ type screen int
 const (
 	splashScreen = iota
 	taskScreen
+
+	GrayColor   = lipgloss.Color("8")
+	WhiteColor  = lipgloss.Color("7")
+	AccentColor = lipgloss.Color("212")
 )
 
 type model struct {
