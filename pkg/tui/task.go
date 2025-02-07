@@ -15,12 +15,13 @@ import (
 	"github.com/mergestat/timediff"
 )
 
+type tab int
 type taskScreenState struct {
-	tabs   []string
-	tasks  []task.Task
-	active int
-
+	tasks     []task.Task
 	taskInput textinput.Model
+
+	tabs      []string
+	activeTab tab
 
 	outerWidth  int
 	outerHeight int
@@ -30,12 +31,21 @@ type taskScreenState struct {
 }
 
 const (
+	allTaskTab = iota
+	pendingTaskTab
+	helpTaskTab
+
 	maxWidthSize        = 60
 	maxHeightSize       = 20
 	borderLeftRightSize = 2
 	taskInputPromptSize = 5
 	taskInputHeightSize = 1
 )
+
+type helpKey struct {
+	key         string
+	description string
+}
 
 var helpKeys = []helpKey{
 	helpKey{
@@ -79,31 +89,31 @@ var helpKeys = []helpKey{
 func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
 	m.screen = taskScreen
 
-	ti := textinput.New()
-	ti.Placeholder = "new task, press ? for help"
-	ti.CharLimit = 156
-	ti.PlaceholderStyle = lipgloss.NewStyle().Italic(true).Foreground(GrayColor)
+	taskInput := textinput.New()
+	taskInput.Placeholder = "new task, press ? for help"
+	taskInput.CharLimit = 156
+	taskInput.PlaceholderStyle = lipgloss.NewStyle().Italic(true).Foreground(GrayColor)
 
-	columns := []table.Column{
+	taskTable := table.New()
+	taskColumns := []table.Column{
 		{Title: "ID", Width: 2},
 		{Title: "Description", Width: 28},
 		{Title: "CreatedAt", Width: 12},
 		{Title: "Status", Width: 6},
 	}
-	t := table.New()
-	t.SetColumns(columns)
+	taskTable.SetColumns(taskColumns)
 
+	helpTable := table.New()
 	helpColumns := []table.Column{
 		{Title: "Keys", Width: 18},
 		{Title: "Description", Width: 20},
 	}
 
 	var helpRows []table.Row
-
 	for _, each := range helpKeys {
 		helpRows = append(helpRows, table.Row{each.key, each.description})
 	}
-	helpTable := table.New()
+
 	helpTable.SetColumns(helpColumns)
 	helpTable.SetRows(helpRows)
 
@@ -116,11 +126,11 @@ func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
 
 	m.taskScreenState = taskScreenState{
 		tabs:      []string{"pending", "all", "help"},
-		taskInput: ti,
+		taskInput: taskInput,
 
 		outerWidth:  maxWidthSize,
 		outerHeight: maxHeightSize,
-		taskTable:   t,
+		taskTable:   taskTable,
 		helpTable:   helpTable,
 	}
 	m.updateContent()
@@ -132,11 +142,11 @@ func (m model) TaskScreenView() string {
 	tabStyle := lipgloss.NewStyle().Padding(0, 1)
 
 	var tabs strings.Builder
-	for i, tab := range m.tabs {
-		if i == m.active {
-			tabs.WriteString(tabStyle.Bold(true).Render(tab))
+	for i, currentTab := range m.tabs {
+		if m.activeTab == tab(i) {
+			tabs.WriteString(tabStyle.Bold(true).Render(currentTab))
 		} else {
-			tabs.WriteString(tabStyle.Foreground(GrayColor).Render(tab))
+			tabs.WriteString(tabStyle.Foreground(GrayColor).Render(currentTab))
 		}
 	}
 
@@ -145,26 +155,19 @@ func (m model) TaskScreenView() string {
 
 	var content string
 
-	if m.active == 0 || m.active == 1 {
-		tasks := m.taskScreenState.tasks
-		tasksLen := len(tasks)
-
-		if tasksLen > innerHeight-taskInputHeightSize {
-			tasks = tasks[:innerHeight]
-		}
-
+	switch m.activeTab {
+	case pendingTaskTab:
+	case allTaskTab:
 		var taskView string
-
-		if tasksLen == 0 {
+		if len(m.taskScreenState.tasks) == 0 {
 			taskView = "No task to show"
 		} else {
 			taskView = m.taskScreenState.taskTable.View()
 		}
 
 		content = m.taskScreenState.taskInput.View() + "\n" + taskView
-	}
 
-	if m.active == 2 {
+	case helpTaskTab:
 		content = m.taskScreenState.helpTable.View()
 	}
 
@@ -215,23 +218,23 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyTab:
-			lastIndex := len(m.tabs) - 1
-			if m.active == lastIndex {
-				m.taskScreenState.active = 0
-			} else if m.active < lastIndex {
-				m.taskScreenState.active++
+			lastIndex := tab(len(m.tabs) - 1)
+			if m.activeTab == lastIndex {
+				m.taskScreenState.activeTab = 0
+			} else if m.activeTab < lastIndex {
+				m.taskScreenState.activeTab++
 			} else {
-				m.taskScreenState.active--
+				m.taskScreenState.activeTab--
 			}
 			m.updateContent()
 		case tea.KeyShiftTab:
-			lastIndex := len(m.tabs) - 1
-			if m.active == 0 {
-				m.taskScreenState.active = lastIndex
-			} else if m.active > 0 {
-				m.taskScreenState.active--
+			lastIndex := tab(len(m.tabs) - 1)
+			if m.activeTab == 0 {
+				m.taskScreenState.activeTab = lastIndex
+			} else if m.activeTab > 0 {
+				m.taskScreenState.activeTab--
 			} else {
-				m.taskScreenState.active++
+				m.taskScreenState.activeTab++
 			}
 			m.updateContent()
 		case tea.KeyEnter:
@@ -246,10 +249,11 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.updateContent()
 			}
 		case tea.KeyEscape:
-			m.ignoreQKey = false
-			m.taskScreenState.taskInput.Reset()
-			m.taskScreenState.taskInput.Blur()
-			return m, nil
+			if m.taskScreenState.taskInput.Focused() {
+				m.ignoreQKey = false
+				m.taskScreenState.taskInput.Reset()
+				m.taskScreenState.taskInput.Blur()
+			}
 		case tea.KeySpace:
 			if m.taskScreenState.taskTable.Focused() {
 				selected := m.taskScreenState.taskTable.SelectedRow()
@@ -269,7 +273,7 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, m.taskScreenState.taskInput.Focus()
 			}
 			if !m.taskScreenState.taskInput.Focused() && currentKey == "?" {
-				m.taskScreenState.active = 2
+				m.taskScreenState.activeTab = 2
 				return m, nil
 			}
 		}
@@ -278,38 +282,34 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	var cmd tea.Cmd
-	{
-		m.taskScreenState.taskInput, cmd = m.taskScreenState.taskInput.Update(msg)
+	m.taskScreenState.taskInput, cmd = m.taskScreenState.taskInput.Update(msg)
+	cmds = append(cmds, cmd)
+
+	if m.taskScreenState.taskInput.Focused() {
+		m.taskScreenState.taskTable.Blur()
+	} else {
+		m.taskScreenState.taskTable.Focus()
+		m.taskScreenState.taskTable, cmd = m.taskTable.Update(msg)
 		cmds = append(cmds, cmd)
 	}
 
-	{
-		if m.taskScreenState.taskInput.Focused() {
-			m.taskScreenState.taskTable.Blur()
-		} else {
-			m.taskScreenState.taskTable.Focus()
-			m.taskScreenState.taskTable, cmd = m.taskTable.Update(msg)
-			cmds = append(cmds, cmd)
-		}
-
-		if m.active == 2 {
-			m.taskScreenState.helpTable.Focus()
-			m.taskScreenState.helpTable, cmd = m.helpTable.Update(msg)
-			cmds = append(cmds, cmd)
-		}
+	if m.activeTab == 2 {
+		m.taskScreenState.helpTable.Focus()
+		m.taskScreenState.helpTable, cmd = m.helpTable.Update(msg)
+		cmds = append(cmds, cmd)
 	}
 
 	return m, tea.Batch(cmds...)
 }
 
 func (m *model) updateContent() {
-	switch m.active {
-	case 0:
+	switch m.activeTab {
+	case pendingTaskTab:
 		task, err := db.GetAllPendingTask()
 		if err == nil {
 			m.tasks = task
 		}
-	case 1:
+	case allTaskTab:
 		task, err := db.GetAllTask()
 		if err == nil {
 			m.tasks = task
@@ -317,7 +317,6 @@ func (m *model) updateContent() {
 	}
 
 	var rows []table.Row
-
 	for _, each := range m.tasks {
 		time := timediff.TimeDiff(each.CreatedAt)
 		var isComplete string
@@ -331,9 +330,4 @@ func (m *model) updateContent() {
 	}
 
 	m.taskScreenState.taskTable.SetRows(rows)
-}
-
-type helpKey struct {
-	key         string
-	description string
 }
