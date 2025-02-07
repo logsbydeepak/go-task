@@ -7,7 +7,6 @@ import (
 
 	"example.com/pkg/db"
 	"example.com/pkg/task"
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 
@@ -27,7 +26,6 @@ type taskScreenState struct {
 	outerHeight int
 	table       table.Model
 
-	help              help.Model
 	shortHelpViewKeys []key.Binding
 	helpTable         table.Model
 }
@@ -133,9 +131,6 @@ func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
 	ti.PlaceholderStyle = lipgloss.NewStyle().Italic(true).Foreground(GrayColor)
 
 	t := table.New()
-	h := help.New()
-	h.Styles.ShortKey = lipgloss.NewStyle().Bold(true).Foreground(WhiteColor)
-	h.Styles.ShortDesc = lipgloss.NewStyle().Foreground(WhiteColor)
 	m.screen = taskScreen
 
 	helpColumns := []table.Column{
@@ -166,7 +161,6 @@ func (m model) TaskScreenSwitch() (tea.Model, tea.Cmd) {
 		outerWidth:        maxWidthSize,
 		outerHeight:       maxHeightSize,
 		table:             t,
-		help:              h,
 		helpTable:         helpTable,
 		shortHelpViewKeys: shortHelpViewKeys,
 	}
