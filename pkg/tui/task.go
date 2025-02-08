@@ -232,40 +232,44 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.updateContent()
 		case tea.KeyEnter:
 			if m.taskScreenState.taskInput.Focused() {
-				value := m.taskScreenState.taskInput.Value()
-				if len(value) != 0 {
-					db.Create(value)
-				}
-				m.ignoreQKey = false
-				m.taskScreenState.taskInput.Reset()
-				m.taskScreenState.taskInput.Blur()
-				m.updateContent()
+				return m, nil
 			}
+			value := m.taskScreenState.taskInput.Value()
+			if len(value) != 0 {
+				db.Create(value)
+			}
+			m.ignoreQKey = false
+			m.taskScreenState.taskInput.Reset()
+			m.taskScreenState.taskInput.Blur()
+			m.updateContent()
 		case tea.KeyEscape:
-			if m.taskScreenState.taskInput.Focused() {
-				m.ignoreQKey = false
-				m.taskScreenState.taskInput.Reset()
-				m.taskScreenState.taskInput.Blur()
+			if !m.taskScreenState.taskInput.Focused() {
+				return m, nil
 			}
+			m.ignoreQKey = false
+			m.taskScreenState.taskInput.Reset()
+			m.taskScreenState.taskInput.Blur()
 		case tea.KeySpace:
-			if m.taskScreenState.taskTable.Focused() {
-				selected := m.taskScreenState.taskTable.SelectedRow()
-				if len(selected) != 0 {
-					id, err := strconv.Atoi(m.taskScreenState.taskTable.SelectedRow()[0])
-					if err == nil {
-						db.MarkTaskCompleted(id)
-						m.updateContent()
-						return m, nil
-					}
-				}
+			if !m.taskScreenState.taskTable.Focused() {
+				return m, nil
 			}
+			selected := m.taskScreenState.taskTable.SelectedRow()
+			if len(selected) == 0 {
+				return m, nil
+			}
+			id, err := strconv.Atoi(selected[0])
+			if err != nil {
+				return m, nil
+			}
+			db.MarkTaskCompleted(id)
+			m.updateContent()
+			return m, nil
 		case tea.KeyRunes:
 			currentKey := msg.String()
 			if !m.taskScreenState.taskInput.Focused() && currentKey == "a" {
 				m.ignoreQKey = true
 				return m, m.taskScreenState.taskInput.Focus()
-			}
-			if !m.taskScreenState.taskInput.Focused() && currentKey == "?" {
+			} else if !m.taskScreenState.taskInput.Focused() && currentKey == "?" {
 				m.taskScreenState.activeTab = 2
 				return m, nil
 			}
