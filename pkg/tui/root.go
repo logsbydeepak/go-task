@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/charmbracelet/bubbletea"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 )
@@ -33,6 +33,8 @@ type model struct {
 	viewportWidth  int
 	viewportHeight int
 
+	error error
+
 	ignoreQKey bool
 	screen
 	splashScreenState
@@ -44,6 +46,7 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
@@ -64,6 +67,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.viewportWidth = msg.Width
 	}
 
+	if m.error != nil {
+		return m, nil
+	}
+
 	switch m.screen {
 	case splashScreen:
 		return m.SplashScrrenUpdate(msg)
@@ -75,6 +82,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
+	if m.error != nil {
+		return lipgloss.Place(
+			m.viewportWidth,
+			m.viewportHeight,
+			lipgloss.Center,
+			lipgloss.Center,
+			"ERROR",
+		)
+	}
+
 	switch m.screen {
 	case splashScreen:
 		return m.SplashScreenView()

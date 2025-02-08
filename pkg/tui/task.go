@@ -259,6 +259,7 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			id, err := strconv.Atoi(selected[0])
 			if err != nil {
+				m.error = err
 				return m, nil
 			}
 			db.MarkTaskCompleted(id)
@@ -303,14 +304,18 @@ func (m *model) updateContent() {
 	switch m.activeTab {
 	case allTaskTab:
 		task, err := db.GetAllTask()
-		if err == nil {
-			m.tasks = task
+		if err != nil {
+			m.error = err
+			return
 		}
+		m.tasks = task
 	case pendingTaskTab:
 		task, err := db.GetAllPendingTask()
-		if err == nil {
-			m.tasks = task
+		if err != nil {
+			m.error = err
+			return
 		}
+		m.tasks = task
 	}
 
 	var rows []table.Row
