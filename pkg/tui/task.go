@@ -231,7 +231,7 @@ func (m model) TaskScrrenUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			m.updateContent()
 		case tea.KeyEnter:
-			if m.taskScreenState.taskInput.Focused() {
+			if !m.taskScreenState.taskInput.Focused() {
 				return m, nil
 			}
 			value := m.taskScreenState.taskInput.Value()
