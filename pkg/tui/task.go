@@ -73,10 +73,6 @@ var helpKeys = []helpKey{
 		description: "move down",
 	},
 	helpKey{
-		key:         "↓/j",
-		description: "move down",
-	},
-	helpKey{
 		key:         "?",
 		description: "switch to help",
 	},
